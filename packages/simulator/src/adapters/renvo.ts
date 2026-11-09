@@ -1,4 +1,5 @@
-import { renvoFirmwareFormat, renvoTargets } from '../renvo-targets.ts'
+import { renvoTargets } from '../renvo-targets.ts'
+import { prepareRenvoFirmware } from '../firmware-formats.ts'
 import type { RenvoPlatform } from '../renvo-targets'
 import { decodeRenvoResult } from '../renvo-result.ts'
 import type { FirmwareImage, SimulationAdapter, SimulationSession, SimulatorSnapshot } from '../types'
@@ -75,11 +76,7 @@ class RenvoSession implements SimulationSession {
   async loadFirmware(image: FirmwareImage): Promise<void> {
     this.ensureActive()
     await this.pause()
-    const expected = renvoFirmwareFormat(this.target)
-    if (image.format !== expected) {
-      throw new Error(`${this.target} requires .${expected} firmware for the Renvo browser runtime`)
-    }
-    this.firmware = image
+    this.firmware = prepareRenvoFirmware(image, this.target)
     this.result = null
     this.instructions = 0
     this.failure = ''
@@ -194,7 +191,7 @@ export class RenvoAdapter implements SimulationAdapter {
   async availableTargets(): Promise<readonly string[]> {
     try {
       const installed = await getInstalledTargets()
-      return this.targets.filter(target => installed.has(target))
+      return this.targets.filter(target => installed.has(target) && target !== 'efm8bb52f32g')
     } catch {
       return []
     }

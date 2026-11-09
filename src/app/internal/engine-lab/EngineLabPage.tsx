@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { engineCandidates } from '@osempro/simulator/catalog'
 import type { PlatformId, SimulatorSnapshot } from '@osempro/simulator/types'
-import { renvoFirmwareFormat } from '@osempro/simulator/renvo-targets'
+import { acceptedRenvoFormats } from '@osempro/simulator/firmware-formats'
 import { getPlannedTarget, plannedTargets } from '@osempro/simulator/planned-targets'
 import { cpuSmokeFixtures } from '@osempro/simulator/smoke'
 import type { BrowserEngineLab } from '@osempro/simulator/lab'
@@ -50,10 +50,8 @@ export default function EngineLabPage() {
   ]))
   const installed = Boolean(activeEngine?.availableTargets?.includes(target))
   const firmwareTypes = engineId === 'renvo' && target && !selectedProfile
-    ? '.' + renvoFirmwareFormat(target)
-    : engineId === 'picsim' || platform.startsWith('pic') || platform === 'dspic30f'
-      ? '.hex'
-      : platform === 'stm32' ? '.elf' : '.hex,.bin'
+    ? acceptedRenvoFormats(target).map(format => '.' + format).join(',')
+    : engineId === 'picsim' ? '.hex,.bin' : '.hex,.bin'
   const canSmoke = installed && cpuSmokeFixtures.some(fixture =>
     fixture.platform === platform && fixture.engine === engineId && fixture.target === target
   )
@@ -246,7 +244,7 @@ export default function EngineLabPage() {
                     : activeEngine?.id === 'picsim' ? <>Build PICsim with <code>npm run engines:build:picsim</code>, then reload.</>
                       : 'No browser emulator available for this target.'}
               </p>}
-              {installed && <p className="lab-note">Firmware format: {firmwareTypes}{engineId === 'renvo' ? '. Each step replays from reset.' : ''}</p>}
+              {installed && <p className="lab-note">Firmware: {firmwareTypes}{engineId === 'renvo' ? '. Renvo replay steps restart from the vector table.' : ''}</p>}
             </section>
           </div>
 

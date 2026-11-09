@@ -1,6 +1,6 @@
 import type { PlatformId } from './types'
 
-export type RenvoPlatform = Exclude<PlatformId, 'stm8' | 'pic12f' | 'pic18f' | 'pic24f' | 'dspic30f'>
+export type RenvoPlatform = Exclude<PlatformId, 'stm8' | 'pic12f' | 'pic18f' | 'pic24f' | 'dspic30f' | 'efm8'>
 export type RenvoFirmwareFormat = 'hex' | 'elf'
 
 export const renvoTargets: Readonly<Record<RenvoPlatform, readonly string[]>> = {
@@ -46,9 +46,6 @@ export const renvoTargets: Readonly<Record<RenvoPlatform, readonly string[]>> = 
   ],
   msp430: [
     'msp430fr2433'
-  ],
-  efm8: [
-    'efm8bb52f32g'
   ]
 }
 

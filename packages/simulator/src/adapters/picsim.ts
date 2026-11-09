@@ -1,4 +1,5 @@
 import { picSimTargets } from '../picsim-targets.ts'
+import { toIntelHex } from '../firmware-formats.ts'
 import type { PicSimPlatform } from '../picsim-targets.ts'
 import type { FirmwareImage, SimulationAdapter, SimulationSession, SimulatorSnapshot } from '../types'
 
@@ -81,11 +82,11 @@ class PicSimSession implements SimulationSession {
 
   async loadFirmware(image: FirmwareImage): Promise<void> {
     this.ensureActive()
-    if (image.format !== 'hex') throw new Error('PICsim accepts Intel HEX firmware')
+    const firmware = toIntelHex(image)
     this.loaded = false
     this.current = await this.call('load', {
       target: this.target,
-      firmware: image.bytes.slice().buffer
+      firmware: firmware.bytes.slice().buffer
     })
     this.loaded = true
     this.failure = ''

@@ -17,7 +17,8 @@
     "./renvo-targets": "./src/renvo-targets.ts",
     "./planned-targets": "./src/planned-targets.ts",
     "./picsim-targets": "./src/picsim-targets.ts",
-    "./smoke": "./src/smoke.ts"
+    "./smoke": "./src/smoke.ts",
+    "./firmware-formats": "./src/firmware-formats.ts"
   },
   "dependencies": {
     "avr8js": "0.21.1",
