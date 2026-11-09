@@ -1,7 +1,7 @@
-import { AVR8jsAdapter } from './adapters/avr'
-import { RP2040jsAdapter } from './adapters/rp2040'
-import { RenvoAdapter } from './adapters/renvo'
-import { SimulationRegistry } from './registry'
+import { AVR8jsAdapter } from './adapters/avr.ts'
+import { RP2040jsAdapter } from './adapters/rp2040.ts'
+import { RenvoAdapter } from './adapters/renvo.ts'
+import { SimulationRegistry } from './registry.ts'
 
 export function createEngineRegistry(): SimulationRegistry {
   const registry = new SimulationRegistry()

@@ -104,7 +104,11 @@ class RP2040Session implements SimulationSession {
     if (!Number.isSafeInteger(count) || count < 1 || count > 1000000) {
       throw new RangeError('Instruction count must be between 1 and 1,000,000')
     }
-    const { core, clock } = this.cpu
+    const { core } = this.cpu
+    const clock = this.cpu.clock as typeof this.cpu.clock & {
+      tick(deltaNanos: number): void
+      readonly nanosToNextAlarm: number
+    }
     for (let index = 0; index < count; index += 1) {
       if (core.waiting) {
         const untilAlarm = clock.nanosToNextAlarm

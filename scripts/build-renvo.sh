@@ -24,3 +24,4 @@ mkdir -p "$root/public/engines/renvo"
 "$build_dir/web/node_modules/.bin/esbuild" "$build_dir/web/generated/renvo.js" --bundle --platform=browser --format=esm --outdir="$root/public/engines/renvo" --loader:.wasm=file
 cp "$build_dir/LICENSE-MIT" "$root/public/engines/renvo/LICENSE-MIT" 2>/dev/null || true
 cp "$build_dir/LICENSE-APACHE" "$root/public/engines/renvo/LICENSE-APACHE" 2>/dev/null || true
+cp "$build_dir/THIRD_PARTY_LICENSES.md" "$root/public/engines/renvo/THIRD_PARTY_LICENSES.md"

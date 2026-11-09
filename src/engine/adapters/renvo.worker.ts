@@ -1,6 +1,6 @@
 type RenvoApi = {
   listTargets(): string
-  runIntelHex(target: string, firmware: Uint8Array, options: { maxInstructions: bigint, stimuli: [] }): string
+  runIntelHex(target: string, firmware: Uint8Array, options: { maxInstructions: bigint, deadlineTicks?: bigint, stimuli: [] }): string
   runElf(target: string, firmware: Uint8Array, options: { maxInstructions: bigint, stimuli: [] }): string
 }
 
@@ -14,7 +14,8 @@ type WorkerRequest = {
 }
 
 async function getRuntime(): Promise<RenvoApi> {
-  const module = await import(/* @vite-ignore */ '/engines/renvo/renvo.js') as { api: RenvoApi }
+  const runtimeUrl = '/engines/renvo/renvo.js'
+  const module = await import(/* @vite-ignore */ runtimeUrl) as { api: RenvoApi }
   return module.api
 }
 
