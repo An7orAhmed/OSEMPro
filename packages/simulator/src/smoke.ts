@@ -8,6 +8,9 @@ export type CpuSmokeFixture = {
   engine: string
   target: string
   bytes: readonly number[]
+  filename?: string
+  steps?: number
+  browserOnly?: boolean
   register: string
   expected: number
 }
@@ -28,6 +31,28 @@ export const cpuSmokeFixtures: readonly CpuSmokeFixture[] = [
     bytes: [0x03, 0x20, 0x04, 0x30],
     register: 'R0',
     expected: 7
+  },
+  {
+    platform: 'pic16f',
+    engine: 'picsim',
+    target: 'pic16f84a',
+    bytes: [...new TextEncoder().encode(':020000002A30A4\n:00000001FF\n')],
+    filename: 'instruction-test.hex',
+    steps: 1,
+    browserOnly: true,
+    register: 'W',
+    expected: 42
+  },
+  {
+    platform: 'pic18f',
+    engine: 'picsim',
+    target: 'pic18f452',
+    bytes: [...new TextEncoder().encode(':020000002A0EC6\n:00000001FF\n')],
+    filename: 'instruction-test.hex',
+    steps: 1,
+    browserOnly: true,
+    register: 'W',
+    expected: 42
   }
 ]
 
@@ -45,8 +70,8 @@ export async function runCpuSmoke(
 
   const session = await registry.createSession(platform, target, engine)
   try {
-    await session.loadFirmware(parseFirmware('instruction-test.bin', Uint8Array.from(fixture.bytes)))
-    await session.step(2)
+    await session.loadFirmware(parseFirmware(fixture.filename ?? 'instruction-test.bin', Uint8Array.from(fixture.bytes)))
+    await session.step(fixture.steps ?? 2)
     const state = session.snapshot()
     const actual = state.registers[fixture.register]
     return {

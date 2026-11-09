@@ -6,6 +6,7 @@ import { engineCandidates } from '@osempro/simulator/catalog'
 import type { PlatformId, SimulatorSnapshot } from '@osempro/simulator/types'
 import { renvoFirmwareFormat } from '@osempro/simulator/renvo-targets'
 import { getPlannedTarget, plannedTargets } from '@osempro/simulator/planned-targets'
+import { cpuSmokeFixtures } from '@osempro/simulator/smoke'
 import type { BrowserEngineLab } from '@osempro/simulator/lab'
 
 type EngineState = {
@@ -53,9 +54,8 @@ export default function EngineLabPage() {
     : engineId === 'picsim' || platform.startsWith('pic') || platform === 'dspic30f'
       ? '.hex'
       : platform === 'stm32' ? '.elf' : '.hex,.bin'
-  const canSmoke = installed && (
-    (platform === 'avr' && engineId === 'avr8js' && target === 'atmega328p') ||
-    (platform === 'rp2040' && engineId === 'rp2040js' && target === 'rp2040')
+  const canSmoke = installed && cpuSmokeFixtures.some(fixture =>
+    fixture.platform === platform && fixture.engine === engineId && fixture.target === target
   )
 
   useEffect(() => {
