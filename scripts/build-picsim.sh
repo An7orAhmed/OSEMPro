@@ -31,6 +31,7 @@ mkdir -p "$output"
 emcc "${sources[@]}" "$root/scripts/picsim-bridge.c" \
   -I "$build_dir/include" \
   -O2 \
+  --no-entry \
   -s MODULARIZE=1 \
   -s EXPORT_ES6=1 \
   -s ENVIRONMENT=worker \

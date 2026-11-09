@@ -82,6 +82,7 @@ class PicSimSession implements SimulationSession {
   async loadFirmware(image: FirmwareImage): Promise<void> {
     this.ensureActive()
     if (image.format !== 'hex') throw new Error('PICsim accepts Intel HEX firmware')
+    this.loaded = false
     this.current = await this.call('load', {
       target: this.target,
       firmware: image.bytes.slice().buffer

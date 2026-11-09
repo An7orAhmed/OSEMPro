@@ -3,6 +3,9 @@
 import Image from 'next/image'
 import { useMemo, useState } from 'react'
 import { engineCandidates } from '@osempro/simulator/catalog'
+import { renvoTargets } from '@osempro/simulator/renvo-targets'
+import { picSimTargets } from '@osempro/simulator/picsim-targets'
+import { plannedTargets } from '@osempro/simulator/planned-targets'
 import type { PlatformId } from '@osempro/simulator/types'
 import { popularProjects, recentProjects, searchProjects } from './projects/catalog'
 import type { PublishedProject } from './projects/catalog'
@@ -75,9 +78,15 @@ export default function App({ projects }: { projects: PublishedProject[] }) {
   const matchingEngines = useMemo(() => {
     const term = query.trim().toLowerCase()
     if (!term) return []
-    return engineCandidates.filter(engine =>
-      `${engine.name} ${engine.provider} ${engine.architecture}`.toLowerCase().includes(term)
-    ).slice(0, 4)
+    return engineCandidates.filter(engine => {
+      const renvo = (renvoTargets as Partial<Record<PlatformId, readonly string[]>>)[engine.id] ?? []
+      const picsim = (picSimTargets as Partial<Record<PlatformId, readonly string[]>>)[engine.id] ?? []
+      const pending = plannedTargets[engine.id]?.map(profile => profile.id) ?? []
+      return [engine.name, engine.provider, engine.architecture, ...renvo, ...picsim, ...pending]
+        .join(' ')
+        .toLowerCase()
+        .includes(term)
+    }).slice(0, 4)
   }, [query])
   const hasQuery = Boolean(query.trim())
 
