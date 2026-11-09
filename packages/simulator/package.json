@@ -12,7 +12,8 @@
     "./registry": "./src/registry.ts",
     "./initialize": "./src/initialize.ts",
     "./adapters/avr": "./src/adapters/avr.ts",
-    "./adapters/rp2040": "./src/adapters/rp2040.ts"
+    "./adapters/rp2040": "./src/adapters/rp2040.ts",
+    "./lab": "./src/lab.ts"
   },
   "dependencies": {
     "avr8js": "0.21.1",
