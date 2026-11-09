@@ -92,5 +92,5 @@ worker.addEventListener('message', event => {
 })
 
 setInterval(() => {
-  if (session?.snapshot().running) post({ event: 'snapshot', snapshot: snapshot() })
+  if (session && firmwareLoaded) post({ event: 'snapshot', snapshot: snapshot() })
 }, 160)

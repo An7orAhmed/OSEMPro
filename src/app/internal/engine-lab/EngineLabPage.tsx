@@ -69,7 +69,10 @@ export default function EngineLabPage() {
         client = new BrowserEngineLab()
         labRef.current = client
         client.onSnapshot = state => {
-          if (!disposed) setSnapshot(state)
+          if (!disposed) {
+            setSnapshot(state)
+            if (state.error) setError(state.error)
+          }
         }
         client.onFailure = detail => {
           if (!disposed) setError(detail)

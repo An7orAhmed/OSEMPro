@@ -130,6 +130,7 @@ self.addEventListener('message', async (event: MessageEvent<PicSimRequest>) => {
 
     if (request.action === 'load') {
       stop()
+      loaded = false
       if (!request.target || !request.firmware) throw new Error('PICsim requires a target and HEX firmware')
       module.FS.writeFile('/firmware.hex', new Uint8Array(request.firmware))
       const code = withString(module, request.target.toUpperCase(), address => module._osem_load(address))
