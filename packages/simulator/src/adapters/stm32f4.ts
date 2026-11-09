@@ -226,15 +226,21 @@ export class STM32F4Adapter implements SimulationAdapter {
   readonly id = 'stm32f4-emu'
   readonly platform = 'stm32'
   readonly targets = stm32f4Targets.map(target => target.id)
+  private ready: Promise<boolean> | null = null
 
   async isAvailable(): Promise<boolean> {
-    try {
-      const machine = await createMachine(stm32f4Targets[0])
-      machine.close()
-      return true
-    } catch {
-      return false
+    if (!this.ready) {
+      this.ready = (async () => {
+        try {
+          const machine = await createMachine(stm32f4Targets[0])
+          machine.close()
+          return true
+        } catch {
+          return false
+        }
+      })()
     }
+    return this.ready
   }
 
   async availableTargets(): Promise<readonly string[]> {

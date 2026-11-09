@@ -181,7 +181,7 @@ OSEMPro lists the exact chips requested without treating an approximate MCU or a
 
 | MCU family | Target examples | Browser backend |
 | --- | --- | --- |
-| STM32F401 | F401CC, F401CE, F401RC, F401RE | Port required; existing F411 is not an F401 equivalent |
+| STM32F401 | F401CC, F401CE, F401RC, F401RE | [stm32f4-emu](https://github.com/danish9661/STM32F4-emulator), true browser Cortex-M4 interpreter, automatic assets |
 | PIC12F | 12F675, 12F683, 12F1840 | [gpsim](https://gpsim.sourceforge.net/) native models; browser port required |
 | PIC16F | 16F84A, 16F628A, 16F877A, 16F18855 | [PICsim](https://github.com/lcgamboa/picsim) Emscripten integration; optional build |
 | PIC16F | 16F15376 | Renvo WASM integration; optional build |
@@ -200,6 +200,33 @@ The build compiles PICsim's GPL-2.0-or-later C source at its pinned revision int
 
 After building, open `http://localhost:3000/internal/engine-lab` and select **PIC16F / PICsim / pic16f84a** or **PIC18F / PICsim / pic18f452**. The **CPU test** action uses real single-instruction Intel HEX files containing `MOVLW 0x2A` and checks the resulting `W` register equals 42. Full hardware and peripheral support is not implied by this instruction test.
 
-PIC24F and dsPIC30F have a different 16-bit instruction architecture from PIC18 and are deliberately not routed to PICsim or Renvo PIC16. STM32F401 is not silently mapped to F411. The lab displays planned devices with their real source references and disables execution until a compatible browser CPU model exists.
+PIC24F and dsPIC30F have a different 16-bit instruction architecture from PIC18 and are deliberately not routed to PICsim or Renvo PIC16. STM32F401 is mapped to its own Cortex-M4 model with F401 register definitions. F411 remains a distinct Renvo target. The lab displays planned devices with their real source references and disables execution until a compatible browser CPU model exists.
 
 `npm run build:with-engines` now builds both Renvo and PICsim before building Next.js, so it requires both Rust/WASI and Emscripten. Use `npm run build` for a site build without those optional runtimes.
+
+## Run HEX and BIN directly in the browser
+
+The public UI never compiles firmware. Firmware is loaded from a file picker, parsed in a browser worker and executed by a real CPU engine. User firmware is not uploaded to Next.js or stored in Prisma.
+
+| Engine | Intel HEX | BIN | ELF |
+| --- | --- | --- | --- |
+| avr8js (ATmega328P) | Native | Native | Not supported |
+| rp2040js (RP2040) | Native flash segments | Native XIP flash | Not supported |
+| stm32f4-emu (STM32F401 CC/CE/RC/RE) | Native | Native | Native |
+| PICsim (PIC16F/PIC18F) | Native | Browser converts to Intel HEX | Not supported |
+| Renvo ARM targets | Browser wraps flash segments into ELF | Browser wraps flash image into ELF | Native |
+| Renvo PIC16F15376 | Native | Browser converts to Intel HEX | Not supported |
+| Renvo ESP32, WCH, AVR, MSP430 | Not yet supported | Not yet supported | Native |
+
+STM32F401 uses the open source `stm32f4-emu` package, pinned in the simulator workspace. The `postinstall` script copies its MIT licensed JavaScript and WASM assets into `public/engines/stm32f4` for the browser to load. One install step prepares the runtime:
+
+```sh
+git switch dev
+git pull origin dev
+npm install
+npm run dev
+```
+
+Then visit `http://localhost:3000/internal/engine-lab`, select STM32, `stm32f4-emu`, `stm32f401ce` (or another F401 variant), and load your own `.hex` or `.bin`. The editor uses actual selected variant RAM and flash limits. Choose PICsim only after its optional Emscripten build is installed.
+
+The browser WASM engine does not reproduce every analog or peripheral behavior. Flash images require a valid MCU vector table. PIC24F and dsPIC30F remain pending because no compatible open source browser CPU core has yet been integrated.

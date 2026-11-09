@@ -34,7 +34,7 @@ test('explicit engine selection never silently uses another engine', async () =>
 test('built-in adapters register exact targets and distinct backends', () => {
   const registry = createEngineRegistry()
   assert.deepEqual(registry.listAdapters('avr').map(item => item.id), ['avr8js', 'renvo'])
-  assert.deepEqual(registry.listAdapters('stm32').map(item => item.id), ['renvo'])
+  assert.deepEqual(registry.listAdapters('stm32').map(item => item.id), ['stm32f4-emu', 'renvo'])
   assert.deepEqual(registry.listAdapters('rp2040').map(item => item.id), ['rp2040js', 'renvo'])
   assert.equal(registry.hasAdapter('stm8'), false)
 })

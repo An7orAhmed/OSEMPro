@@ -1,9 +1,11 @@
 import { access, copyFile, mkdir } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
+import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)))
-const moduleFile = fileURLToPath(import.meta.resolve('stm32f4-emu/stm32f4'))
+const resolver = createRequire(join(root, 'packages/simulator/package.json'))
+const moduleFile = resolver.resolve('stm32f4-emu/stm32f4')
 const packageRoot = resolve(dirname(moduleFile), '..')
 const outputRoot = join(root, 'public/engines/stm32f4')
 

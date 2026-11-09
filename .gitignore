@@ -32,3 +32,4 @@ out
 .alchemy/
 /src/generated/prisma/
 public/engines/picsim/
+public/engines/stm32f4/

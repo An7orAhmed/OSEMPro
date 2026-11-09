@@ -18,7 +18,8 @@
 - Browser firmware tests run within `packages/simulator/src/lab.worker.ts`; never send firmware to Next.js routes or Prisma.
 - Keep actual CPU fixtures in `packages/simulator/src/smoke.ts` and verify them with `tests/engine-lab.test.mjs`.
 - MCU catalog profiles without a browser CPU implementation must remain marked as port pending.
-- Never run STM32F401 firmware under F411 as though it is the same device.
+- Run STM32F401 firmware only through the STM32F401-aware stm32f4-emu backend. Never substitute F411.
+- User firmware HEX/BIN must stay in the browser worker; do not send firmware bytes to API routes.
 - PIC24F and dsPIC30F require a native 16-bit PIC architecture core, not PIC18 or PIC16.
 - PICsim runs via Emscripten inside browser workers and is distributed under GPL-2.0-or-later; keep license and source availability.
 - Add a real instruction fixture and browser smoke test for each new PIC backend.
