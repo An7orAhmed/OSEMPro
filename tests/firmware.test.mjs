@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { parseFirmware, parseIntelHex, detectFirmwareFormat } from '../src/engine/firmware.ts'
-import { SimulationRegistry } from '../src/engine/registry.ts'
+import { parseFirmware, parseIntelHex, detectFirmwareFormat } from '../packages/simulator/src/firmware.ts'
+import { SimulationRegistry } from '../packages/simulator/src/registry.ts'
 
 test('parses real Intel HEX data and EOF records', () => {
   const result = parseIntelHex(':0400000001020304F2\n:00000001FF\n')

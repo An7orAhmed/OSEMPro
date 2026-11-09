@@ -1,12 +1,16 @@
 # OSEMPro development rules
 
-- Work only on the `dev` branch. Never commit or push directly to `main`.
-- Keep emulator logic, WASM workers, and runtime state independent of React and presentation code.
-- Integrate existing open source cores through `SimulationAdapter` and preserve engine selection.
-- No placeholder CPU outputs, manufactured usage numbers, or false installed-engine statuses.
-- Test at least one real instruction sequence for every new CPU adapter.
-- Respect upstream licenses, disclose unavailable firmware boot, memory, or peripheral features.
-- Use TypeScript, React, Tailwind CSS, two spaces for indentation, and meaningful names.
-- Keep the public UI minimal, accessible, responsive and independent of emulator code.
-- Run `npm test`, `npm run lint`, and `npm run build` before release.
-- Development engine test routes require genuine access controls if exposing private firmware.
+- Work only on `dev`. Never commit or push to `main`.
+- The web app uses Next.js App Router; keep server and client responsibilities separate.
+- `packages/simulator` is an independent browser simulation package without React, Next.js, Prisma or server dependencies.
+- Never execute uploaded firmware on Next.js servers. Load simulator runtime only in the user's browser.
+- Use `@osempro/simulator/browser` for lazy runtime loading and import types or catalog separately.
+- Keep database access in `src/server` and other server-only modules. Never expose Prisma or credentials to client code.
+- Add Prisma when the datasource and project schema are defined.
+- Add CPU execution smoke tests for every working engine and report unavailable engines accurately.
+- Do not invent project records, simulator outputs, device capabilities, or usage figures.
+- Respect emulator licenses and distribute only redistributable binary or WASM assets.
+- Keep UI modern, minimal, responsive, and accessible.
+- Use readable TypeScript, 2 space indentation, and meaningful names.
+- Check `npm run lint`, `npm test`, `npm run typecheck`, and `npm run build` before releasing.
+- Require real authentication for private projects or engine test pages; an obscure URL is not security.

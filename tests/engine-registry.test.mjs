@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { SimulationRegistry } from '../src/engine/registry.ts'
-import { createEngineRegistry } from '../src/engine/initialize.ts'
+import { SimulationRegistry } from '../packages/simulator/src/registry.ts'
+import { createEngineRegistry } from '../packages/simulator/src/initialize.ts'
 
 function adapter(id, platform, ready = true) {
   return {

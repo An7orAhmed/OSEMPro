@@ -1,8 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { parseFirmware } from '../src/engine/firmware.ts'
-import { AVR8jsAdapter } from '../src/engine/adapters/avr.ts'
-import { RP2040jsAdapter } from '../src/engine/adapters/rp2040.ts'
+import { parseFirmware } from '../packages/simulator/src/firmware.ts'
+import { AVR8jsAdapter } from '../packages/simulator/src/adapters/avr.ts'
+import { RP2040jsAdapter } from '../packages/simulator/src/adapters/rp2040.ts'
 
 test('avr8js executes actual LDI and INC AVR opcodes', async () => {
   const adapter = new AVR8jsAdapter()
