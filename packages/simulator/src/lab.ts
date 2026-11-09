@@ -79,7 +79,7 @@ export class BrowserEngineLab {
     this.failPending(new Error('Engine lab was disposed'))
   }
 
-  private call<T>(request: Omit<LabRequest, 'id'>): Promise<T> {
+  private call<T>(request: LabRequest extends infer R ? R extends LabRequest ? Omit<R, 'id'> : never : never): Promise<T> {
     if (this.disposed) return Promise.reject(new Error('Engine lab was disposed'))
     const id = ++this.nextId
     return new Promise<T>((resolve, reject) => {

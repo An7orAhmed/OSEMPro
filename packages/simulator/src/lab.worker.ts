@@ -75,7 +75,9 @@ async function dispatch(message: LabRequest): Promise<unknown> {
     case 'start': {
       if (!session || !firmwareLoaded) throw new Error('Load firmware before starting')
       const active = session
-      void active.start().catch(error => {
+      void active.start().then(() => {
+        if (session === active) post({ event: 'snapshot', snapshot: snapshot() })
+      }).catch(error => {
         if (session === active) {
           post({ event: 'failure', message: error instanceof Error ? error.message : String(error) })
           post({ event: 'snapshot', snapshot: snapshot() })
