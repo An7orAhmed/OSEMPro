@@ -14,6 +14,10 @@ test('Renvo registers every supported family without installing a fake runtime',
     assert.ok(targets.length > 0)
   }
   assert.equal(registry.hasAdapter('stm8'), false)
+  assert.deepEqual(registry.listAdapters('pic16f').map(adapter => adapter.id), ['renvo'])
+  assert.equal(registry.hasAdapter('pic12f'), false)
+  assert.equal(registry.hasAdapter('pic24f'), false)
+  assert.equal(registry.hasAdapter('dspic30f'), false)
 })
 
 test('Intel HEX execution is restricted to Renvo PIC16 and EFM8 targets', () => {

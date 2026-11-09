@@ -1,6 +1,11 @@
 export type PlatformId =
   | 'avr'
   | 'pic'
+  | 'pic12f'
+  | 'pic16f'
+  | 'pic18f'
+  | 'pic24f'
+  | 'dspic30f'
   | 'stm32'
   | 'stm8'
   | 'esp32'
