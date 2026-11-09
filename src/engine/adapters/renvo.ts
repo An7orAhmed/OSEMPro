@@ -103,7 +103,7 @@ class RenvoSession implements SimulationSession {
       cycles: typeof ticks === 'number' ? ticks : 0,
       running: this.running,
       registers,
-      instructions: this.instructions,
+      ...(typeof this.result.instructions === 'number' ? { instructions: this.result.instructions } : {}),
       ...(this.failure ? { error: this.failure } : {})
     }
   }

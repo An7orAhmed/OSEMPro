@@ -151,7 +151,12 @@ export class RP2040jsAdapter implements SimulationAdapter {
   readonly targets = ['rp2040', 'raspberry-pi-pico']
 
   async isAvailable(): Promise<boolean> {
-    return true
+    try {
+      await import('rp2040js')
+      return true
+    } catch {
+      return false
+    }
   }
 
   async createSession(target: string): Promise<SimulationSession> {

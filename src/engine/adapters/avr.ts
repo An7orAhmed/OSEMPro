@@ -155,7 +155,12 @@ export class AVR8jsAdapter implements SimulationAdapter {
   readonly targets = ['atmega328p', 'atmega328']
 
   async isAvailable(): Promise<boolean> {
-    return true
+    try {
+      await import('avr8js')
+      return true
+    } catch {
+      return false
+    }
   }
 
   async createSession(target: string): Promise<SimulationSession> {
