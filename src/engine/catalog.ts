@@ -32,11 +32,11 @@ export const engineCandidates: readonly EngineCandidate[] = [
   {
     id: 'stm32',
     name: 'STM32',
-    provider: 'Renode',
-    architecture: 'ARM Cortex-M',
-    browserRuntime: 'port-required',
-    license: 'MIT',
-    source: 'https://github.com/renode/renode'
+    provider: 'Renvo Emulator',
+    architecture: 'Selected ARM Cortex-M MCUs',
+    browserRuntime: 'wasm',
+    license: 'MIT OR Apache-2.0',
+    source: 'https://github.com/tinyrange/renvo_emu'
   },
   {
     id: 'stm8',
@@ -50,10 +50,10 @@ export const engineCandidates: readonly EngineCandidate[] = [
   {
     id: 'esp32',
     name: 'ESP32',
-    provider: 'ESP-Emulator',
-    architecture: 'RISC-V / Xtensa',
+    provider: 'Renvo Emulator',
+    architecture: 'Selected RISC-V / Xtensa MCUs',
     browserRuntime: 'wasm',
-    license: 'Apache-2.0',
-    source: 'https://github.com/espressif/esp-emulator'
+    license: 'MIT OR Apache-2.0',
+    source: 'https://github.com/tinyrange/renvo_emu'
   }
 ]

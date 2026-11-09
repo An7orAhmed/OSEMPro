@@ -45,11 +45,15 @@ A project will define its target, firmware format, and custom UI. Project listin
 | --- | --- | --- | --- |
 | AVR | [avr8js](https://github.com/wokwi/avr8js) | JavaScript CPU engine | MIT |
 | PIC | [gpsim](https://gpsim.sourceforge.net/) | Native, WebAssembly port required | GPL-2.0-or-later |
-| STM32 | [Renode](https://github.com/renode/renode) | Native, browser integration required | MIT |
+| STM32 | [Renvo Emulator](https://github.com/tinyrange/renvo_emu) | Source available WASI component for selected STM32 targets | MIT OR Apache-2.0 |
 | STM8 | [uCsim](https://github.com/danieldrotos/ucsim) | Native, WebAssembly port required | GPL |
-| ESP32 | [ESP-Emulator](https://github.com/espressif/esp-emulator) | Browser WebAssembly available | Apache-2.0 |
+| ESP32 | [Renvo Emulator](https://github.com/tinyrange/renvo_emu) | Source available WASI component for selected ESP32 targets | MIT OR Apache-2.0 |
 
-WebAssembly alone does not guarantee that a specific MCU or peripheral is supported. Exact board support and licenses must be verified during adapter integration.
+Renvo's browser target uses WASI Preview 2 and a generated JavaScript interface. Its source is open, but its MCU models are deliberately limited in device coverage and timing fidelity. It currently lists STM32F103, F411, L432 and H743 and ESP32-C6, S3 and P4 among its targets. It also models selected AVR and PIC16 devices, making it a useful common alternative to the platform-specific candidates.
+
+[Renode](https://github.com/renode/renode) is a strong native STM32 alternative with broad board-level models. [Espressif ESP-Emulator](https://github.com/espressif/esp-emulator) publishes a capable browser WASM binary, but its public repository currently describes itself as a distribution of installers, binaries, docs and helpers rather than publishing the full emulator core source. Do not assume that the entire simulator core is open source just because the distribution includes an Apache license file.
+
+WebAssembly alone does not guarantee that a specific MCU or peripheral is supported. Exact board support, firmware loading behavior and licenses must be verified during adapter integration.
 
 ## Engine API
 
