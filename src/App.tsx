@@ -1,6 +1,8 @@
+'use client'
+
 import { useMemo, useState } from 'react'
-import { engineCandidates } from './engine'
-import type { PlatformId } from './engine'
+import { engineCandidates } from '@osempro/simulator/catalog'
+import type { PlatformId } from '@osempro/simulator/types'
 import { popularProjects, recentProjects, searchProjects } from './projects/catalog'
 import type { PublishedProject } from './projects/catalog'
 
@@ -56,10 +58,10 @@ function ProjectGroup({ title, description, projects, icon }: ProjectGroupProps)
   )
 }
 
-function App() {
+function App({ projects }: { projects: PublishedProject[] }) {
   const [search, setSearch] = useState('')
   const [platform, setPlatform] = useState<PlatformId | 'all'>('all')
-  const filteredProjects = useMemo(() => searchProjects(search, platform), [search, platform])
+  const filteredProjects = useMemo(() => searchProjects(projects, search, platform), [projects, search, platform])
   const recent = useMemo(() => recentProjects(filteredProjects), [filteredProjects])
   const popular = useMemo(() => popularProjects(filteredProjects), [filteredProjects])
 

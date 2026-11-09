@@ -1,4 +1,4 @@
-import type { PlatformId } from '../engine'
+import type { PlatformId } from '@osempro/simulator/types'
 
 export interface PublishedProject {
   id: string
@@ -10,11 +10,9 @@ export interface PublishedProject {
   url: string
 }
 
-const publishedProjects: readonly PublishedProject[] = []
-
-export function searchProjects(search: string, platform: PlatformId | 'all'): PublishedProject[] {
+export function searchProjects(projects: readonly PublishedProject[], search: string, platform: PlatformId | 'all'): PublishedProject[] {
   const query = search.trim().toLowerCase()
-  return publishedProjects.filter(project => {
+  return projects.filter(project => {
     const matchesPlatform = platform === 'all' || project.platform === platform
     const matchesQuery = !query || `${project.title} ${project.description} ${project.platform}`.toLowerCase().includes(query)
     return matchesPlatform && matchesQuery

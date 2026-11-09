@@ -23,3 +23,8 @@ public/engines/renvo/
 *.njsproj
 *.sln
 *.sw?
+.next
+out
+.env
+.env.*
+!.env.example
