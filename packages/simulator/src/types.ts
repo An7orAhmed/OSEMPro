@@ -1,4 +1,18 @@
-export type PlatformId = 'avr' | 'pic' | 'stm32' | 'stm8' | 'esp32' | 'rp2040'
+export type PlatformId =
+  | 'avr'
+  | 'pic'
+  | 'stm32'
+  | 'stm8'
+  | 'esp32'
+  | 'rp2040'
+  | 'rp2350'
+  | 'wch'
+  | 'samd'
+  | 'nrf52'
+  | 'renesas'
+  | 'msp430'
+  | 'efm8'
+
 export type FirmwareFormat = 'hex' | 'bin' | 'elf'
 
 export interface FirmwareSegment {
@@ -22,6 +36,7 @@ export interface SimulatorSnapshot {
   gpio?: Readonly<Record<string, number>>
   serial?: string
   error?: string
+  stopReason?: string
 }
 
 export interface SimulationSession {
