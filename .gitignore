@@ -28,3 +28,5 @@ out
 .env
 .env.*
 !.env.example
+.prisma-composer/
+.alchemy/
