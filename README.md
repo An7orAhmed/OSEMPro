@@ -174,3 +174,32 @@ The installer pins Renvo to a verified upstream commit for reproducibility. Set 
 The current Renvo WASM API accepts **ELF** for ARM, RISC-V, Xtensa, AVR, and MSP430 targets and **Intel HEX** for PIC16F15376 and EFM8BB52F32G. It does not accept a standalone BIN file for those targets. Bounded execution is not a replacement for a complete vendor boot ROM, cycle accurate timing, or every peripheral.
 
 The runtime's list of installed target IDs determines availability; registering a target is not proof that the browser emulator runs it.
+
+## STM32F401 and Microchip PIC family expansion
+
+OSEMPro lists the exact chips requested without treating an approximate MCU or a catalog entry as a working emulator.
+
+| MCU family | Target examples | Browser backend |
+| --- | --- | --- |
+| STM32F401 | F401CC, F401CE, F401RC, F401RE | Port required; existing F411 is not an F401 equivalent |
+| PIC12F | 12F675, 12F683, 12F1840 | [gpsim](https://gpsim.sourceforge.net/) native models; browser port required |
+| PIC16F | 16F84A, 16F628A, 16F877A, 16F18855 | [PICsim](https://github.com/lcgamboa/picsim) Emscripten integration; optional build |
+| PIC16F | 16F15376 | Renvo WASM integration; optional build |
+| PIC18F | 18F452, 18F4520, 18F4550, 18F4620 | PICsim Emscripten integration; optional build |
+| PIC24F | 24FJ64GA002, 24FJ128GA006 | No selected open source browser CPU implementation |
+| dsPIC30F | 30F2010, 30F4011, 30F4013 | No selected open source browser CPU implementation |
+
+To enable the PIC16F and PIC18F PICsim engine, first install the [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html) and activate `emcc` in your shell. Then run:
+
+```sh
+npm run engines:build:picsim
+npm run dev
+```
+
+The build compiles PICsim's GPL-2.0-or-later C source at its pinned revision into `public/engines/picsim/picsim.mjs` and `picsim.wasm`. The CPU and peripherals execute exclusively in a browser worker. The upstream license is copied into the static asset directory. The upstream simulator source and OSEMPro integration source must remain available to users receiving these binaries to satisfy GPL terms.
+
+After building, open `http://localhost:3000/internal/engine-lab` and select **PIC16F / PICsim / pic16f84a** or **PIC18F / PICsim / pic18f452**. The **CPU test** action uses real single-instruction Intel HEX files containing `MOVLW 0x2A` and checks the resulting `W` register equals 42. Full hardware and peripheral support is not implied by this instruction test.
+
+PIC24F and dsPIC30F have a different 16-bit instruction architecture from PIC18 and are deliberately not routed to PICsim or Renvo PIC16. STM32F401 is not silently mapped to F411. The lab displays planned devices with their real source references and disables execution until a compatible browser CPU model exists.
+
+`npm run build:with-engines` now builds both Renvo and PICsim before building Next.js, so it requires both Rust/WASI and Emscripten. Use `npm run build` for a site build without those optional runtimes.

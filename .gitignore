@@ -31,3 +31,4 @@ out
 .prisma-composer/
 .alchemy/
 /src/generated/prisma/
+public/engines/picsim/

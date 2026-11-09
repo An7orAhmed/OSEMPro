@@ -17,3 +17,8 @@
 - The engine lab route is only available with Next.js `NODE_ENV=development`; never mistake a hidden URL for authentication.
 - Browser firmware tests run within `packages/simulator/src/lab.worker.ts`; never send firmware to Next.js routes or Prisma.
 - Keep actual CPU fixtures in `packages/simulator/src/smoke.ts` and verify them with `tests/engine-lab.test.mjs`.
+- MCU catalog profiles without a browser CPU implementation must remain marked as port pending.
+- Never run STM32F401 firmware under F411 as though it is the same device.
+- PIC24F and dsPIC30F require a native 16-bit PIC architecture core, not PIC18 or PIC16.
+- PICsim runs via Emscripten inside browser workers and is distributed under GPL-2.0-or-later; keep license and source availability.
+- Add a real instruction fixture and browser smoke test for each new PIC backend.

@@ -225,7 +225,7 @@ export default function EngineLabPage() {
               </label>
               <label className="lab-field">
                 <span>Target MCU</span>
-                <select value={target} disabled={busy || !activeEngine} onChange={event => { setTarget(event.target.value); clearFirmware() }}>
+                <select value={target} disabled={busy || targetOptions.length === 0} onChange={event => { setTarget(event.target.value); clearFirmware() }}>
                   {targetOptions.map(value => <option key={value} value={value}>{value}{getPlannedTarget(platform, value) ? ' (port pending)' : ''}</option>)}
                 </select>
               </label>
