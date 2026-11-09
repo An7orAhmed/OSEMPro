@@ -1,7 +1,13 @@
+import { renvoFirmwareFormat, renvoTargets } from '../renvo-targets'
+import type { RenvoPlatform } from '../renvo-targets'
+import { decodeRenvoResult } from '../renvo-result'
 import type { FirmwareImage, SimulationAdapter, SimulationSession, SimulatorSnapshot } from '../types'
 
 type RenvoTarget = { id: string, name?: string }
 type WorkerReply = { id: number, result?: unknown, error?: string }
+
+const workerTimeoutMs = 30000
+let targetManifest: Promise<Set<string>> | null = null
 
 function createRenvoWorker(): Worker {
   if (typeof Worker === 'undefined') throw new Error('Renvo requires browser Web Workers')
@@ -11,24 +17,44 @@ function createRenvoWorker(): Worker {
 function request(worker: Worker, operation: 'targets' | 'run', data: Record<string, unknown> = {}): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const id = 1
-    const onMessage = (event: MessageEvent<WorkerReply>) => {
-      if (event.data.id !== id) return
-      cleanup()
-      if (event.data.error) reject(new Error(event.data.error))
-      else resolve(event.data.result)
-    }
-    const onError = (event: ErrorEvent) => {
-      cleanup()
-      reject(new Error(event.message || 'Renvo worker failed'))
-    }
-    const cleanup = () => {
+    const timeout = setTimeout(() => finish(new Error('Renvo runtime did not respond')), workerTimeoutMs)
+
+    const finish = (error?: Error, result?: unknown) => {
+      clearTimeout(timeout)
       worker.removeEventListener('message', onMessage)
       worker.removeEventListener('error', onError)
+      if (error) reject(error)
+      else resolve(result)
     }
+    const onMessage = (event: MessageEvent<WorkerReply>) => {
+      if (event.data.id !== id) return
+      if (event.data.error) finish(new Error(event.data.error))
+      else finish(undefined, event.data.result)
+    }
+    const onError = (event: ErrorEvent) => {
+      finish(new Error(event.message || 'Renvo worker failed'))
+    }
+
     worker.addEventListener('message', onMessage)
     worker.addEventListener('error', onError)
     worker.postMessage({ id, operation, ...data })
   })
+}
+
+async function getInstalledTargets(): Promise<Set<string>> {
+  if (!targetManifest) {
+    targetManifest = (async () => {
+      const worker = createRenvoWorker()
+      try {
+        const entries = await request(worker, 'targets') as RenvoTarget[]
+        if (!Array.isArray(entries)) throw new Error('Invalid Renvo target manifest')
+        return new Set(entries.map(entry => entry.id.toLowerCase()))
+      } finally {
+        worker.terminate()
+      }
+    })()
+  }
+  return targetManifest
 }
 
 class RenvoSession implements SimulationSession {
@@ -38,7 +64,7 @@ class RenvoSession implements SimulationSession {
   private running = false
   private disposed = false
   private instructions = 0
-  private result: Record<string, unknown> = {}
+  private result: unknown = null
   private failure = ''
   private rejectRun: ((error: Error) => void) | null = null
 
@@ -49,11 +75,12 @@ class RenvoSession implements SimulationSession {
   async loadFirmware(image: FirmwareImage): Promise<void> {
     this.ensureActive()
     await this.pause()
-    if (image.format !== 'hex' && image.format !== 'elf') {
-      throw new Error('Renvo browser API accepts Intel HEX or ELF firmware')
+    const expected = renvoFirmwareFormat(this.target)
+    if (image.format !== expected) {
+      throw new Error(`${this.target} requires .${expected} firmware for the Renvo browser runtime`)
     }
     this.firmware = image
-    this.result = {}
+    this.result = null
     this.instructions = 0
     this.failure = ''
   }
@@ -86,29 +113,20 @@ class RenvoSession implements SimulationSession {
     this.ensureLoaded()
     await this.pause()
     this.instructions = 0
-    this.result = {}
+    this.result = null
     this.failure = ''
   }
 
   snapshot(): SimulatorSnapshot {
-    const rawRegisters = this.result.registers
-    const registers: Record<string, number> = {}
-    if (rawRegisters && typeof rawRegisters === 'object' && !Array.isArray(rawRegisters)) {
-      for (const [name, value] of Object.entries(rawRegisters)) {
-        if (typeof value === 'number' && Number.isFinite(value)) registers[name] = value
-      }
-    }
-    const ticks = this.result.ticks
+    const snapshot = decodeRenvoResult(this.result)
     return {
-      cycles: typeof ticks === 'number' ? ticks : 0,
+      ...snapshot,
       running: this.running,
-      registers,
-      ...(typeof this.result.instructions === 'number' ? { instructions: this.result.instructions } : {}),
       ...(this.failure ? { error: this.failure } : {})
     }
   }
 
-  resultJson(): Readonly<Record<string, unknown>> {
+  resultJson(): unknown {
     return this.result
   }
 
@@ -122,6 +140,7 @@ class RenvoSession implements SimulationSession {
     this.ensureLoaded()
     if (this.running) throw new Error('Renvo execution is already in progress')
     if (!Number.isSafeInteger(budget) || budget > 100000000) throw new RangeError('Renvo budget exceeds limit')
+
     const worker = createRenvoWorker()
     this.worker = worker
     this.running = true
@@ -135,8 +154,7 @@ class RenvoSession implements SimulationSession {
         instructions: budget
       })
       const interrupted = new Promise<never>((_, reject) => { this.rejectRun = reject })
-      const result = await Promise.race([operation, interrupted]) as Record<string, unknown>
-      this.result = result
+      this.result = await Promise.race([operation, interrupted])
       this.instructions = budget
     } catch (error) {
       this.failure = error instanceof Error ? error.message : String(error)
@@ -159,50 +177,34 @@ class RenvoSession implements SimulationSession {
   }
 }
 
-const platformTargets: Record<'avr' | 'pic' | 'stm32' | 'esp32', readonly string[]> = {
-  avr: ['atmega328pb'],
-  pic: ['pic16f15376'],
-  stm32: ['stm32f103c8t6', 'stm32f411re', 'stm32l432kc', 'stm32h743zi'],
-  esp32: ['esp32s3', 'esp32c6', 'esp32p4']
-}
-
 export class RenvoAdapter implements SimulationAdapter {
   readonly id = 'renvo'
-  readonly platform: 'avr' | 'pic' | 'stm32' | 'esp32'
+  readonly platform: RenvoPlatform
   readonly targets: readonly string[]
 
-  constructor(platform: 'avr' | 'pic' | 'stm32' | 'esp32') {
+  constructor(platform: RenvoPlatform) {
     this.platform = platform
-    this.targets = platformTargets[platform]
+    this.targets = renvoTargets[platform]
   }
 
   async isAvailable(): Promise<boolean> {
     try {
-      const worker = createRenvoWorker()
-      try {
-        const targets = await request(worker, 'targets') as RenvoTarget[]
-        return this.targets.some(target => targets.some(item => item.id.toLowerCase() === target))
-      } finally {
-        worker.terminate()
-      }
+      const installed = await getInstalledTargets()
+      return this.targets.some(target => installed.has(target))
     } catch {
       return false
     }
   }
 
   async createSession(target: string): Promise<SimulationSession> {
-    if (!this.targets.includes(target.toLowerCase())) {
+    const selected = target.toLowerCase()
+    if (!this.targets.includes(selected)) {
       throw new Error(`Unsupported Renvo target: ${target}`)
     }
-    const worker = createRenvoWorker()
-    try {
-      const available = await request(worker, 'targets') as RenvoTarget[]
-      if (!available.some(item => item.id.toLowerCase() === target.toLowerCase())) {
-        throw new Error(`Renvo component does not include target ${target}`)
-      }
-    } finally {
-      worker.terminate()
+    const installed = await getInstalledTargets()
+    if (!installed.has(selected)) {
+      throw new Error(`Installed Renvo runtime does not contain ${target}`)
     }
-    return new RenvoSession(target)
+    return new RenvoSession(selected)
   }
 }

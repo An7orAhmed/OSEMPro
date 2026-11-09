@@ -1,7 +1,13 @@
 type RenvoApi = {
   listTargets(): string
-  runIntelHex(target: string, firmware: Uint8Array, options: { maxInstructions: bigint, deadlineTicks?: bigint, stimuli: [] }): string
-  runElf(target: string, firmware: Uint8Array, options: { maxInstructions: bigint, stimuli: [] }): string
+  runIntelHex(target: string, firmware: Uint8Array, options: RunOptions): string
+  runElf(target: string, firmware: Uint8Array, options: RunOptions): string
+}
+
+type RunOptions = {
+  maxInstructions: bigint
+  deadlineTicks?: bigint
+  stimuli: []
 }
 
 type WorkerRequest = {
@@ -13,10 +19,18 @@ type WorkerRequest = {
   instructions?: number
 }
 
-async function getRuntime(): Promise<RenvoApi> {
-  const runtimeUrl = '/engines/renvo/renvo.js'
-  const module = await import(/* webpackIgnore: true */ runtimeUrl) as { api: RenvoApi }
-  return module.api
+let runtimePromise: Promise<RenvoApi> | null = null
+
+function getRuntime(): Promise<RenvoApi> {
+  if (!runtimePromise) {
+    const runtimeUrl = '/engines/renvo/renvo.js'
+    runtimePromise = import(/* webpackIgnore: true */ runtimeUrl)
+      .then((module: { api?: RenvoApi }) => {
+        if (!module.api) throw new Error('Invalid Renvo browser module')
+        return module.api
+      })
+  }
+  return runtimePromise
 }
 
 self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
@@ -30,11 +44,11 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
     if (!request.bytes || !request.target || !request.instructions || !request.format) {
       throw new Error('Missing Renvo execution parameters')
     }
-    const options = { maxInstructions: BigInt(request.instructions), stimuli: [] as [] }
-    const bytes = new Uint8Array(request.bytes)
+    const options: RunOptions = { maxInstructions: BigInt(request.instructions), stimuli: [] }
+    const firmware = new Uint8Array(request.bytes)
     const value = request.format === 'hex'
-      ? api.runIntelHex(request.target, bytes, options)
-      : api.runElf(request.target, bytes, options)
+      ? api.runIntelHex(request.target, firmware, options)
+      : api.runElf(request.target, firmware, options)
     self.postMessage({ id: request.id, result: JSON.parse(value) })
   } catch (error) {
     self.postMessage({ id: request.id, error: error instanceof Error ? error.message : String(error) })
