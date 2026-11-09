@@ -1,6 +1,6 @@
-import { renvoFirmwareFormat, renvoTargets } from '../renvo-targets'
+import { renvoFirmwareFormat, renvoTargets } from '../renvo-targets.ts'
 import type { RenvoPlatform } from '../renvo-targets'
-import { decodeRenvoResult } from '../renvo-result'
+import { decodeRenvoResult } from '../renvo-result.ts'
 import type { FirmwareImage, SimulationAdapter, SimulationSession, SimulatorSnapshot } from '../types'
 
 type RenvoTarget = { id: string, name?: string }
