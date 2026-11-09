@@ -135,3 +135,19 @@ npm run db:smoke
 `db:smoke` generates the client, creates one temporary `DemoProject`, reads it back, then deletes it. A successful `db:check` is a connection test, not proof that Prisma Client generation or tables are correct.
 
 If the old dependencies remain cached after `npm install`, remove `node_modules` and reinstall without deleting `package-lock.json` first. Keep `.env` local and do not commit credentials.
+
+## Local Engine Lab
+
+The development-only browser emulator workbench is available at:
+
+```text
+http://localhost:3000/internal/engine-lab
+```
+
+Start Next.js with `npm run dev`. This route is not linked from the homepage and returns HTTP 404 when `NODE_ENV` is not `development`. It is not an authentication system. Do not run a public development server with sensitive firmware.
+
+The lab starts its own Web Worker and loads the independent `@osempro/simulator` package inside that worker. It checks installed engines, selects targets, parses user-selected HEX/BIN/ELF files locally, and provides execution controls, registers, GPIO state, and available UART output. Neither file contents nor CPU snapshots are posted to the application server or stored in Prisma.
+
+Use **CPU test** for AVR8js ATmega328P or RP2040js RP2040. These tests execute actual instruction bytes and check CPU registers; they do not represent full firmware or peripheral qualification. Other platforms need their emulator WASM runtime and a user-supplied firmware image. STM8 remains unavailable until a browser adapter is implemented.
+
+Run the smoke tests locally with `npm test`. CPU integration and Next.js production build verification must pass before promotion from `dev`.

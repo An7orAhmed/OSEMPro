@@ -14,3 +14,6 @@
 - Use readable TypeScript, 2 space indentation, and meaningful names.
 - Check `npm run lint`, `npm test`, `npm run typecheck`, and `npm run build` before releasing.
 - Require real authentication for private projects or engine test pages; an obscure URL is not security.
+- The engine lab route is only available with Next.js `NODE_ENV=development`; never mistake a hidden URL for authentication.
+- Browser firmware tests run within `packages/simulator/src/lab.worker.ts`; never send firmware to Next.js routes or Prisma.
+- Keep actual CPU fixtures in `packages/simulator/src/smoke.ts` and verify them with `tests/engine-lab.test.mjs`.

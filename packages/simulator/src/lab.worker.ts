@@ -1,7 +1,8 @@
 import { engineCandidates } from './catalog'
 import { parseFirmware } from './firmware'
+import { runCpuSmoke } from './smoke'
 import { createEngineRegistry } from './initialize'
-import type { LabEngineStatus, LabRequest, LabResponse, LabSmokeResult } from './lab-protocol'
+import type { LabEngineStatus, LabRequest, LabResponse } from './lab-protocol'
 import type { SimulationSession, SimulatorSnapshot } from './types'
 
 const registry = createEngineRegistry()
@@ -18,32 +19,6 @@ function endSession(): void {
   session?.dispose()
   session = null
   firmwareLoaded = false
-}
-
-async function smoke(request: Extract<LabRequest, { action: 'smoke' }>): Promise<LabSmokeResult> {
-  const fixture = request.engine === 'avr8js' && request.platform === 'avr' && request.target === 'atmega328p'
-    ? { bytes: [0x01, 0xe0, 0x03, 0x95], register: 'R16', expected: 2 }
-    : request.engine === 'rp2040js' && request.platform === 'rp2040' && request.target === 'rp2040'
-      ? { bytes: [0x03, 0x20, 0x04, 0x30], register: 'R0', expected: 7 }
-      : null
-
-  if (!fixture) throw new Error('No verified CPU smoke fixture for this target')
-
-  const testSession = await registry.createSession(request.platform, request.target, request.engine)
-  try {
-    await testSession.loadFirmware(parseFirmware('instruction-test.bin', Uint8Array.from(fixture.bytes)))
-    await testSession.step(2)
-    const state = testSession.snapshot()
-    return {
-      passed: state.registers[fixture.register] === fixture.expected,
-      register: fixture.register,
-      expected: fixture.expected,
-      actual: state.registers[fixture.register],
-      snapshot: state
-    }
-  } finally {
-    testSession.dispose()
-  }
 }
 
 async function dispatch(message: LabRequest): Promise<unknown> {
@@ -100,7 +75,7 @@ async function dispatch(message: LabRequest): Promise<unknown> {
     case 'snapshot':
       return snapshot()
     case 'smoke':
-      return smoke(message)
+      return runCpuSmoke(registry, message.platform, message.engine, message.target)
   }
 }
 
