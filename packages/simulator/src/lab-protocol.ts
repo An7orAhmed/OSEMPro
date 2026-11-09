@@ -11,7 +11,7 @@ export type LabRequest =
 export type LabEngineStatus = {
   platform: PlatformId
   label: string
-  engines: Array<{ id: string, targets: readonly string[], available: boolean }>
+  engines: Array<{ id: string, targets: readonly string[], available: boolean, availableTargets: readonly string[] }>
 }
 
 export type LabSmokeResult = {

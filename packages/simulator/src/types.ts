@@ -54,5 +54,6 @@ export interface SimulationAdapter {
   readonly platform: PlatformId
   readonly targets: readonly string[]
   isAvailable(): Promise<boolean>
+  availableTargets?(): Promise<readonly string[]>
   createSession(target: string): Promise<SimulationSession>
 }

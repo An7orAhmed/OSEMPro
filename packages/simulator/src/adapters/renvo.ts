@@ -188,11 +188,15 @@ export class RenvoAdapter implements SimulationAdapter {
   }
 
   async isAvailable(): Promise<boolean> {
+    return (await this.availableTargets()).length > 0
+  }
+
+  async availableTargets(): Promise<readonly string[]> {
     try {
       const installed = await getInstalledTargets()
-      return this.targets.some(target => installed.has(target))
+      return this.targets.filter(target => installed.has(target))
     } catch {
-      return false
+      return []
     }
   }
 

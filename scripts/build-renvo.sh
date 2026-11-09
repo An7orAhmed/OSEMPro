@@ -25,6 +25,7 @@ rustup target add wasm32-wasip2
 npm ci --prefix "$build_dir/web"
 cargo build --release -p remu-web --target wasm32-wasip2 --locked --manifest-path "$build_dir/Cargo.toml"
 npm --prefix "$build_dir/web" run transpile
+npm --prefix "$build_dir/web" run test:component
 
 cat > "$build_dir/web/osempro.vite.config.mjs" <<'EOF'
 import { defineConfig } from 'vite'

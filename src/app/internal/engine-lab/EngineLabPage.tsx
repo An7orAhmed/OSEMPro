@@ -10,7 +10,7 @@ import type { BrowserEngineLab } from '@osempro/simulator/lab'
 type EngineState = {
   platform: PlatformId
   label: string
-  engines: Array<{ id: string, targets: readonly string[], available: boolean }>
+  engines: Array<{ id: string, targets: readonly string[], available: boolean, availableTargets: readonly string[] }>
 }
 
 const emptySnapshot: SimulatorSnapshot = {
@@ -41,7 +41,7 @@ export default function EngineLabPage() {
 
   const activePlatform = useMemo(() => engines.find(option => option.platform === platform), [engines, platform])
   const activeEngine = activePlatform?.engines.find(option => option.id === engineId)
-  const installed = Boolean(activeEngine?.available)
+  const installed = Boolean(activeEngine?.availableTargets?.includes(target))
   const firmwareTypes = engineId === 'renvo' && target ? '.' + renvoFirmwareFormat(target) : '.hex, .bin'
   const canSmoke = installed && (
     (platform === 'avr' && engineId === 'avr8js' && target === 'atmega328p') ||
@@ -89,14 +89,14 @@ export default function EngineLabPage() {
     const first = selected?.engines[0]
     setPlatform(value)
     setEngineId(first?.id ?? '')
-    setTarget(first?.targets[0] ?? '')
+    setTarget(first?.availableTargets[0] ?? first?.targets[0] ?? '')
     clearFirmware()
   }
 
   function selectEngine(value: string) {
     const selected = activePlatform?.engines.find(option => option.id === value)
     setEngineId(value)
-    setTarget(selected?.targets[0] ?? '')
+    setTarget(selected?.availableTargets[0] ?? selected?.targets[0] ?? '')
     clearFirmware()
   }
 
@@ -216,7 +216,7 @@ export default function EngineLabPage() {
               <label className="lab-field">
                 <span>Target MCU</span>
                 <select value={target} disabled={busy || !activeEngine} onChange={event => { setTarget(event.target.value); clearFirmware() }}>
-                  {(activeEngine?.targets ?? []).map(value => <option key={value} value={value}>{value}</option>)}
+                  {(activeEngine?.targets ?? []).map(value => <option key={value} value={value} disabled={Boolean(activeEngine?.available && !activeEngine.availableTargets.includes(value))}>{value}</option>)}
                 </select>
               </label>
               <label className="lab-field">

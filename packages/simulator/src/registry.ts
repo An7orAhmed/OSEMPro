@@ -5,6 +5,7 @@ export interface EngineAvailability {
   platform: PlatformId
   targets: readonly string[]
   available: boolean
+  availableTargets: readonly string[]
 }
 
 export class SimulationRegistry {
@@ -33,12 +34,19 @@ export class SimulationRegistry {
   }
 
   async inspect(platform: PlatformId): Promise<EngineAvailability[]> {
-    return Promise.all(this.listAdapters(platform).map(async adapter => ({
-      id: adapter.id,
-      platform,
-      targets: adapter.targets,
-      available: await adapter.isAvailable().catch(() => false)
-    })))
+    return Promise.all(this.listAdapters(platform).map(async adapter => {
+      const ready = await adapter.isAvailable().catch(() => false)
+      const availableTargets = !ready
+        ? []
+        : await (adapter.availableTargets?.() ?? Promise.resolve(adapter.targets)).catch(() => [])
+      return {
+        id: adapter.id,
+        platform,
+        targets: adapter.targets,
+        available: availableTargets.length > 0,
+        availableTargets
+      }
+    }))
   }
 
   async createSession(platform: PlatformId, target: string, engineId?: string): Promise<SimulationSession> {
