@@ -19,11 +19,15 @@
   },
   "dependencies": {
     "@osempro/simulator": "file:packages/simulator",
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "^7.10.1",
     "@prisma/composer": "0.38.0",
     "@prisma/composer-prisma-cloud": "0.38.0",
     "@prisma/orm-postgres": "8.0.0-rc.23",
+    "dotenv": "^18.0.10",
     "effect": "4.0.5",
     "next": "16.4.5",
+    "pg": "^8.23.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "server-only": "0.0.1"
@@ -31,11 +35,13 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.5",
     "@types/node": "^24.19.2",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "oxlint": "^1.90.0",
-    "prisma": "8.0.0-rc.33",
+    "prisma": "^7.10.1",
     "tailwindcss": "^4.3.5",
+    "tsx": "^4.23.15",
     "typescript": "~7.0.2"
   },
   "overrides": {
