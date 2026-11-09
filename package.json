@@ -23,7 +23,9 @@
     "db:validate": "prisma validate",
     "engines:build:renvo": "bash scripts/build-renvo.sh",
     "build:with-engines": "npm run engines:build:renvo && npm run engines:build:picsim && npm run build",
-    "engines:build:picsim": "bash scripts/build-picsim.sh"
+    "engines:build:picsim": "bash scripts/build-picsim.sh",
+    "postinstall": "node scripts/setup-stm32f4.mjs",
+    "engines:prepare:stm32f4": "node scripts/setup-stm32f4.mjs"
   },
   "dependencies": {
     "@osempro/simulator": "file:packages/simulator",

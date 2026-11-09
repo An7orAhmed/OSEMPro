@@ -7,12 +7,6 @@ export interface PlannedTarget {
 }
 
 export const plannedTargets: Partial<Record<PlatformId, readonly PlannedTarget[]>> = {
-  stm32: [
-    { id: 'stm32f401cc', source: 'https://www.st.com/en/microcontrollers-microprocessors/stm32f401.html', note: 'STM32F401 model required. STM32F411 is not a compatible substitute.' },
-    { id: 'stm32f401ce', source: 'https://www.st.com/en/microcontrollers-microprocessors/stm32f401.html', note: 'STM32F401 model required. STM32F411 is not a compatible substitute.' },
-    { id: 'stm32f401rc', source: 'https://www.st.com/en/microcontrollers-microprocessors/stm32f401.html', note: 'STM32F401 model required. STM32F411 is not a compatible substitute.' },
-    { id: 'stm32f401re', source: 'https://www.st.com/en/microcontrollers-microprocessors/stm32f401.html', note: 'STM32F401 model required. STM32F411 is not a compatible substitute.' }
-  ],
   pic12f: [
     { id: 'pic12f675', source: 'https://gpsim.sourceforge.net/', note: 'gpsim models this chip natively, but its browser WASM port is pending.' },
     { id: 'pic12f683', source: 'https://gpsim.sourceforge.net/', note: 'gpsim models this chip natively, but its browser WASM port is pending.' },

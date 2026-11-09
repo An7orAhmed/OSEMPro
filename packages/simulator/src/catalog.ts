@@ -32,7 +32,7 @@ export const engineCandidates: readonly EngineCandidate[] = [
   {
     id: 'stm32',
     name: 'STM32',
-    provider: 'Renvo',
+    provider: 'STM32F4 WASM / Renvo',
     architecture: 'Cortex-M3 / M4F / M7',
     browserRuntime: 'wasm',
     license: 'MIT OR Apache-2.0',
