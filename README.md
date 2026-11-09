@@ -151,3 +151,26 @@ The lab starts its own Web Worker and loads the independent `@osempro/simulator`
 Use **CPU test** for AVR8js ATmega328P or RP2040js RP2040. These tests execute actual instruction bytes and check CPU registers; they do not represent full firmware or peripheral qualification. Other platforms need their emulator WASM runtime and a user-supplied firmware image. STM8 remains unavailable until a browser adapter is implemented.
 
 Run the smoke tests locally with `npm test`. CPU integration and Next.js production build verification must pass before promotion from `dev`.
+
+## Install more browser emulator platforms
+
+Renvo supplies optional WebAssembly CPU models for PIC16, STM32, ESP32, WCH CH32, SAMD, nRF52, Renesas RA, MSP430, EFM8/8051, RP2350 and AVR. RP2040 can use Renvo as an alternative to rp2040js.
+
+It is not included in `npm install`: compiling the open source Rust engine requires Rust, `rustup`, Git, and the Node 24 selected by `.nvmrc`.
+
+```sh
+nvm use
+rustup update stable
+npm run engines:build:renvo
+npm run dev
+```
+
+Refresh `http://localhost:3000/internal/engine-lab` after building. The runtime is built locally into `public/engines/renvo/`; all emulator execution stays in browser Web Workers. An unbuilt or failed runtime is correctly shown as unavailable.
+
+`npm run build:with-engines` builds Renvo before producing a Next.js release build. Deploy the generated static assets together with that build. The WASM output is ignored by Git intentionally; do not assume it is included merely because Next.js builds successfully.
+
+The installer pins Renvo to a verified upstream commit for reproducibility. Set `RENVO_REF` to update deliberately. It bundles the WASI Preview 2 JavaScript shim using Renvo's Vite dependency, rather than relying on an uninstalled esbuild executable.
+
+The current Renvo WASM API accepts **ELF** for ARM, RISC-V, Xtensa, AVR, and MSP430 targets and **Intel HEX** for PIC16F15376 and EFM8BB52F32G. It does not accept a standalone BIN file for those targets. Bounded execution is not a replacement for a complete vendor boot ROM, cycle accurate timing, or every peripheral.
+
+The runtime's list of installed target IDs determines availability; registering a target is not proof that the browser emulator runs it.

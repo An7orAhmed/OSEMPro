@@ -20,7 +20,9 @@
     "db:check": "node scripts/check-db.mjs",
     "db:push": "prisma db push",
     "db:smoke": "npm run db:generate && tsx scripts/test-prisma.mts",
-    "db:validate": "prisma validate"
+    "db:validate": "prisma validate",
+    "engines:build:renvo": "bash scripts/build-renvo.sh",
+    "build:with-engines": "npm run engines:build:renvo && npm run build"
   },
   "dependencies": {
     "@osempro/simulator": "file:packages/simulator",

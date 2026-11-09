@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { engineCandidates } from '@osempro/simulator/catalog'
 import type { PlatformId, SimulatorSnapshot } from '@osempro/simulator/types'
+import { renvoFirmwareFormat } from '@osempro/simulator/renvo-targets'
 import type { BrowserEngineLab } from '@osempro/simulator/lab'
 
 type EngineState = {
@@ -41,6 +42,7 @@ export default function EngineLabPage() {
   const activePlatform = useMemo(() => engines.find(option => option.platform === platform), [engines, platform])
   const activeEngine = activePlatform?.engines.find(option => option.id === engineId)
   const installed = Boolean(activeEngine?.available)
+  const firmwareTypes = engineId === 'renvo' && target ? '.' + renvoFirmwareFormat(target) : '.hex, .bin'
   const canSmoke = installed && (
     (platform === 'avr' && engineId === 'avr8js' && target === 'atmega328p') ||
     (platform === 'rp2040' && engineId === 'rp2040js' && target === 'rp2040')
@@ -219,13 +221,14 @@ export default function EngineLabPage() {
               </label>
               <label className="lab-field">
                 <span>Firmware</span>
-                <input type="file" accept=".hex,.bin,.elf" disabled={busy || !installed} onChange={event => { clearFirmware(); setFile(event.target.files?.[0] ?? null) }} />
+                <input type="file" accept={firmwareTypes.replaceAll(" ", "")} disabled={busy || !installed} onChange={event => { clearFirmware(); setFile(event.target.files?.[0] ?? null) }} />
               </label>
               <div className="lab-setup-actions">
                 <button type="button" className="lab-primary" disabled={busy || !file || !installed} onClick={loadFirmware}>Load firmware</button>
                 <button type="button" className="lab-secondary" disabled={busy || !canSmoke} onClick={runSmokeTest}>CPU test</button>
               </div>
-              {!installed && !checking && <p className="lab-note">This runtime is not installed in the browser build.</p>}
+              {!installed && !checking && <p className="lab-note">{activeEngine?.id === 'renvo' ? <>Build the Renvo WASM runtime locally with <code>npm run engines:build:renvo</code>, then reload this page.</> : 'No browser runtime is registered for this platform.'}</p>}
+              {installed && <p className="lab-note">Firmware format: {firmwareTypes}</p>}
             </section>
           </div>
 
@@ -250,6 +253,7 @@ export default function EngineLabPage() {
                 <div><span>Cycles</span><strong>{snapshot.cycles.toLocaleString()}</strong></div>
                 <div><span>Instructions</span><strong>{snapshot.instructions?.toLocaleString() ?? 'N/A'}</strong></div>
                 <div><span>Program counter</span><strong>{snapshot.registers.PC === undefined ? 'N/A' : numericValue(snapshot.registers.PC)}</strong></div>
+                {snapshot.stopReason && <div><span>Stop reason</span><strong>{snapshot.stopReason}</strong></div>}
               </div>
             </section>
 
