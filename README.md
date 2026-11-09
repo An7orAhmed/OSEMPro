@@ -227,6 +227,6 @@ npm install
 npm run dev
 ```
 
-Then visit `http://localhost:3000/internal/engine-lab`, select STM32, `stm32f4-emu`, `stm32f401ce` (or another F401 variant), and load your own `.hex` or `.bin`. The editor uses actual selected variant RAM and flash limits. Choose PICsim only after its optional Emscripten build is installed.
+Then visit `http://localhost:3000/internal/engine-lab`, select STM32, `stm32f4-emu`, `stm32f401ce` (or another F401 variant), and load your own `.hex` or `.bin`. Select **CPU test** to execute a real Thumb `MOVS R0, #42` instruction and check the CPU register. The editor uses actual selected variant RAM and flash limits. Choose PICsim only after its optional Emscripten build is installed.
 
 The browser WASM engine does not reproduce every analog or peripheral behavior. Flash images require a valid MCU vector table. PIC24F and dsPIC30F remain pending because no compatible open source browser CPU core has yet been integrated.

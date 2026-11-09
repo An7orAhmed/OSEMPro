@@ -33,6 +33,50 @@ export const cpuSmokeFixtures: readonly CpuSmokeFixture[] = [
     expected: 7
   },
   {
+    platform: 'stm32',
+    engine: 'stm32f4-emu',
+    target: 'stm32f401cc',
+    bytes: [0, 0, 1, 32, 9, 0, 0, 8, 0x2a, 0x20, 0xfe, 0xe7],
+    filename: 'instruction-test.bin',
+    steps: 1,
+    browserOnly: true,
+    register: 'R0',
+    expected: 42
+  },
+  {
+    platform: 'stm32',
+    engine: 'stm32f4-emu',
+    target: 'stm32f401ce',
+    bytes: [0, 0, 1, 32, 9, 0, 0, 8, 0x2a, 0x20, 0xfe, 0xe7],
+    filename: 'instruction-test.bin',
+    steps: 1,
+    browserOnly: true,
+    register: 'R0',
+    expected: 42
+  },
+  {
+    platform: 'stm32',
+    engine: 'stm32f4-emu',
+    target: 'stm32f401rc',
+    bytes: [0, 0, 1, 32, 9, 0, 0, 8, 0x2a, 0x20, 0xfe, 0xe7],
+    filename: 'instruction-test.bin',
+    steps: 1,
+    browserOnly: true,
+    register: 'R0',
+    expected: 42
+  },
+  {
+    platform: 'stm32',
+    engine: 'stm32f4-emu',
+    target: 'stm32f401re',
+    bytes: [0, 0, 1, 32, 9, 0, 0, 8, 0x2a, 0x20, 0xfe, 0xe7],
+    filename: 'instruction-test.bin',
+    steps: 1,
+    browserOnly: true,
+    register: 'R0',
+    expected: 42
+  },
+  {
     platform: 'pic16f',
     engine: 'picsim',
     target: 'pic16f84a',

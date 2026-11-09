@@ -33,3 +33,15 @@ test('PICsim HEX instruction fixtures parse as real firmware', async () => {
     assert.equal(image.segments[0].bytes.length, 2)
   }
 })
+
+test('STM32F401 fixtures contain real Cortex-M vectors and Thumb instructions', async () => {
+  const { parseFirmware } = await import('../packages/simulator/src/firmware.ts')
+  for (const fixture of cpuSmokeFixtures.filter(item => item.engine === 'stm32f4-emu')) {
+    const firmware = parseFirmware(fixture.filename, Uint8Array.from(fixture.bytes))
+    const view = new DataView(firmware.bytes.buffer)
+    assert.equal(view.getUint32(0, true), 0x20010000)
+    assert.equal(view.getUint32(4, true), 0x08000009)
+    assert.equal(view.getUint16(8, true), 0x202a)
+    assert.equal(fixture.expected, 42)
+  }
+})
