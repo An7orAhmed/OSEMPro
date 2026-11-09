@@ -30,3 +30,4 @@ out
 !.env.example
 .prisma-composer/
 .alchemy/
+/src/generated/prisma/

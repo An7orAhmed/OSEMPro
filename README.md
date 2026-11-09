@@ -88,9 +88,21 @@ npm run typecheck
 npm run build
 ```
 
-## Prisma integration
+## Prisma PostgreSQL verification
 
-When selecting a database, add Prisma Client and the schema under a server-only location. Replace `getPublishedProjects()` inside `src/server/projects.ts` with a Prisma query. Send only required serializable fields to the client. Never import Prisma into `packages/simulator`.
+The project currently uses Prisma ORM 7.10.1. Its initial schema is `prisma/schema.prisma` with one isolated `DemoProject` model. The CLI reads `DATABASE_URL` from the local `.env` file through the existing `prisma.config.ts`. Never commit database credentials.
+
+```sh
+npm install
+npm run db:check
+npm run db:generate
+npm run db:push
+npm run db:smoke
+```
+
+`db:check` runs a read-only SQL query and verifies the PostgreSQL connection. `db:generate` generates the Prisma Client into `src/generated/prisma`. `db:push` applies the demo table to the configured database and can modify its schema; review the target before running it. `db:smoke` writes, reads, and deletes one uniquely named temporary demo record. The script deletes only the row it creates.
+
+The demo model does not feed the public homepage. `src/server/projects.ts` still returns no published projects until real models and application queries are implemented. No user firmware is sent to PostgreSQL; the simulator remains browser-only.
 
 ## Next step
 
