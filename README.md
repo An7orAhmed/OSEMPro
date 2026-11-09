@@ -107,3 +107,31 @@ The demo model does not feed the public homepage. `src/server/projects.ts` still
 ## Next step
 
 Build a restricted engine testing route under the Next.js App Router. Firmware input, register inspection, GPIO, and UART execution should remain in browser components. A hidden path does not provide access control.
+
+## Prisma CLI dependency repair
+
+The application uses Prisma ORM 7.10.1 and Prisma Composer 0.38.0. Prisma 7 requires Effect 3.20.0 inside `@prisma/config`, while Composer requires Effect 4.0.5. Do not globally override `effect` to version 4, as that breaks Prisma CLI configuration loading.
+
+Use Node.js 24 LTS (the `.nvmrc` selects it):
+
+```sh
+nvm install
+nvm use
+npm install
+npm run db:validate
+npm run db:generate
+npm run db:check
+```
+
+Regenerate `package-lock.json` after `npm install` and commit it on `dev`. The old lockfile may still have the incorrectly flattened Effect dependency tree until it is regenerated. To inspect installed versions, run `npm ls effect @prisma/config`. Prisma CLI should resolve Effect 3.20.0 from `@prisma/config`, while Composer should resolve Effect 4.0.5.
+
+After confirming the configured database is your development database:
+
+```sh
+npm run db:push
+npm run db:smoke
+```
+
+`db:smoke` generates the client, creates one temporary `DemoProject`, reads it back, then deletes it. A successful `db:check` is a connection test, not proof that Prisma Client generation or tables are correct.
+
+If the old dependencies remain cached after `npm install`, remove `node_modules` and reinstall without deleting `package-lock.json` first. Keep `.env` local and do not commit credentials.
