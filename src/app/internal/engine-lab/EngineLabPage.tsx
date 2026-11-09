@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { engineCandidates } from '@osempro/simulator/catalog'
 import type { PlatformId, SimulatorSnapshot } from '@osempro/simulator/types'
 import { renvoFirmwareFormat } from '@osempro/simulator/renvo-targets'
+import { getPlannedTarget, plannedTargets } from '@osempro/simulator/planned-targets'
 import type { BrowserEngineLab } from '@osempro/simulator/lab'
 
 type EngineState = {
@@ -41,8 +42,17 @@ export default function EngineLabPage() {
 
   const activePlatform = useMemo(() => engines.find(option => option.platform === platform), [engines, platform])
   const activeEngine = activePlatform?.engines.find(option => option.id === engineId)
+  const selectedProfile = getPlannedTarget(platform, target)
+  const targetOptions = Array.from(new Set([
+    ...(activeEngine?.targets ?? []),
+    ...(plannedTargets[platform]?.map(profile => profile.id) ?? [])
+  ]))
   const installed = Boolean(activeEngine?.availableTargets?.includes(target))
-  const firmwareTypes = engineId === 'renvo' && target ? '.' + renvoFirmwareFormat(target) : '.hex, .bin'
+  const firmwareTypes = engineId === 'renvo' && target && !selectedProfile
+    ? '.' + renvoFirmwareFormat(target)
+    : engineId === 'picsim' || platform.startsWith('pic') || platform === 'dspic30f'
+      ? '.hex'
+      : platform === 'stm32' ? '.elf' : '.hex,.bin'
   const canSmoke = installed && (
     (platform === 'avr' && engineId === 'avr8js' && target === 'atmega328p') ||
     (platform === 'rp2040' && engineId === 'rp2040js' && target === 'rp2040')
@@ -86,17 +96,17 @@ export default function EngineLabPage() {
 
   function selectPlatform(value: PlatformId) {
     const selected = engines.find(option => option.platform === value)
-    const first = selected?.engines[0]
+    const first = selected?.engines.find(engine => engine.available) ?? selected?.engines[0]
     setPlatform(value)
     setEngineId(first?.id ?? '')
-    setTarget(first?.availableTargets[0] ?? first?.targets[0] ?? '')
+    setTarget(first?.availableTargets[0] ?? first?.targets[0] ?? plannedTargets[value]?.[0]?.id ?? '')
     clearFirmware()
   }
 
   function selectEngine(value: string) {
     const selected = activePlatform?.engines.find(option => option.id === value)
     setEngineId(value)
-    setTarget(selected?.availableTargets[0] ?? selected?.targets[0] ?? '')
+    setTarget(selected?.availableTargets[0] ?? selected?.targets[0] ?? plannedTargets[platform]?.[0]?.id ?? '')
     clearFirmware()
   }
 
@@ -216,7 +226,7 @@ export default function EngineLabPage() {
               <label className="lab-field">
                 <span>Target MCU</span>
                 <select value={target} disabled={busy || !activeEngine} onChange={event => { setTarget(event.target.value); clearFirmware() }}>
-                  {(activeEngine?.targets ?? []).map(value => <option key={value} value={value} disabled={Boolean(activeEngine?.available && !activeEngine.availableTargets.includes(value))}>{value}</option>)}
+                  {targetOptions.map(value => <option key={value} value={value}>{value}{getPlannedTarget(platform, value) ? ' (port pending)' : ''}</option>)}
                 </select>
               </label>
               <label className="lab-field">
@@ -227,7 +237,12 @@ export default function EngineLabPage() {
                 <button type="button" className="lab-primary" disabled={busy || !file || !installed} onClick={loadFirmware}>Load firmware</button>
                 <button type="button" className="lab-secondary" disabled={busy || !canSmoke} onClick={runSmokeTest}>CPU test</button>
               </div>
-              {!installed && !checking && <p className="lab-note">{activeEngine?.id === 'renvo' ? <>Build the Renvo WASM runtime locally with <code>npm run engines:build:renvo</code>, then reload this page.</> : 'No browser runtime is registered for this platform.'}</p>}
+              {!installed && !checking && <p className="lab-note">
+                {selectedProfile ? <>{selectedProfile.note} <a href={selectedProfile.source} target="_blank" rel="noopener noreferrer">Reference</a></>
+                  : activeEngine?.id === 'renvo' ? <>Build Renvo with <code>npm run engines:build:renvo</code>, then reload.</>
+                    : activeEngine?.id === 'picsim' ? <>Build PICsim with <code>npm run engines:build:picsim</code>, then reload.</>
+                      : 'No browser emulator available for this target.'}
+              </p>}
               {installed && <p className="lab-note">Firmware format: {firmwareTypes}{engineId === 'renvo' ? '. Each step replays from reset.' : ''}</p>}
             </section>
           </div>

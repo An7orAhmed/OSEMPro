@@ -22,7 +22,8 @@
     "db:smoke": "npm run db:generate && tsx scripts/test-prisma.mts",
     "db:validate": "prisma validate",
     "engines:build:renvo": "bash scripts/build-renvo.sh",
-    "build:with-engines": "npm run engines:build:renvo && npm run build"
+    "build:with-engines": "npm run engines:build:renvo && npm run engines:build:picsim && npm run build",
+    "engines:build:picsim": "bash scripts/build-picsim.sh"
   },
   "dependencies": {
     "@osempro/simulator": "file:packages/simulator",

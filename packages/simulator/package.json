@@ -14,7 +14,9 @@
     "./adapters/avr": "./src/adapters/avr.ts",
     "./adapters/rp2040": "./src/adapters/rp2040.ts",
     "./lab": "./src/lab.ts",
-    "./renvo-targets": "./src/renvo-targets.ts"
+    "./renvo-targets": "./src/renvo-targets.ts",
+    "./planned-targets": "./src/planned-targets.ts",
+    "./picsim-targets": "./src/picsim-targets.ts"
   },
   "dependencies": {
     "avr8js": "0.21.1",
