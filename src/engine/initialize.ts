@@ -13,3 +13,5 @@ export function createEngineRegistry(): SimulationRegistry {
   registry.register(new RenvoAdapter('esp32'))
   return registry
 }
+
+export const simulationRegistry = createEngineRegistry()

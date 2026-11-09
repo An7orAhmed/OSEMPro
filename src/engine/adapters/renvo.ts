@@ -1,4 +1,4 @@
-import type { FirmwareImage, PlatformId, SimulationAdapter, SimulationSession, SimulatorSnapshot } from '../types'
+import type { FirmwareImage, SimulationAdapter, SimulationSession, SimulatorSnapshot } from '../types'
 
 type RenvoTarget = { id: string, name?: string }
 type WorkerReply = { id: number, result?: unknown, error?: string }

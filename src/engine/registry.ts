@@ -61,4 +61,3 @@ export class SimulationRegistry {
   }
 }
 
-export const simulationRegistry = new SimulationRegistry()
