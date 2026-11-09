@@ -1,4 +1,4 @@
-export type PlatformId = 'avr' | 'pic' | 'stm32' | 'stm8' | 'esp32'
+export type PlatformId = 'avr' | 'pic' | 'stm32' | 'stm8' | 'esp32' | 'rp2040'
 export type FirmwareFormat = 'hex' | 'bin' | 'elf'
 
 export interface FirmwareSegment {
@@ -18,6 +18,10 @@ export interface SimulatorSnapshot {
   cycles: number
   running: boolean
   registers: Readonly<Record<string, number>>
+  instructions?: number
+  gpio?: Readonly<Record<string, number>>
+  serial?: string
+  error?: string
 }
 
 export interface SimulationSession {
@@ -31,6 +35,9 @@ export interface SimulationSession {
 }
 
 export interface SimulationAdapter {
-  platform: PlatformId
+  readonly id: string
+  readonly platform: PlatformId
+  readonly targets: readonly string[]
+  isAvailable(): Promise<boolean>
   createSession(target: string): Promise<SimulationSession>
 }

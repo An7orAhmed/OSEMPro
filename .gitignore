@@ -5,14 +5,15 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
 node_modules
 dist
 dist-ssr
 *.local
+*.tsbuildinfo
+.build/
+public/engines/renvo/
 
-# Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea

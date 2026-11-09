@@ -1,29 +1,63 @@
 import type { PlatformId, SimulationAdapter, SimulationSession } from './types'
 
+export interface EngineAvailability {
+  id: string
+  platform: PlatformId
+  targets: readonly string[]
+  available: boolean
+}
+
 export class SimulationRegistry {
-  private readonly adapters = new Map<PlatformId, SimulationAdapter>()
+  private readonly adapters = new Map<PlatformId, Map<string, SimulationAdapter>>()
 
   register(adapter: SimulationAdapter): void {
-    if (this.adapters.has(adapter.platform)) {
-      throw new Error(`Simulation adapter already registered for ${adapter.platform}`)
+    const platformAdapters = this.adapters.get(adapter.platform) ?? new Map<string, SimulationAdapter>()
+    if (platformAdapters.has(adapter.id)) {
+      throw new Error(`Simulation adapter already registered: ${adapter.platform}/${adapter.id}`)
     }
-    this.adapters.set(adapter.platform, adapter)
+    platformAdapters.set(adapter.id, adapter)
+    this.adapters.set(adapter.platform, platformAdapters)
   }
 
-  hasAdapter(platform: PlatformId): boolean {
-    return this.adapters.has(platform)
+  hasAdapter(platform: PlatformId, id?: string): boolean {
+    const adapters = this.adapters.get(platform)
+    return id ? Boolean(adapters?.has(id)) : Boolean(adapters?.size)
   }
 
   availablePlatforms(): PlatformId[] {
     return [...this.adapters.keys()]
   }
 
-  async createSession(platform: PlatformId, target: string): Promise<SimulationSession> {
-    const adapter = this.adapters.get(platform)
-    if (!adapter) {
-      throw new Error(`No simulation engine is installed for ${platform}`)
+  listAdapters(platform: PlatformId): readonly SimulationAdapter[] {
+    return [...(this.adapters.get(platform)?.values() ?? [])]
+  }
+
+  async inspect(platform: PlatformId): Promise<EngineAvailability[]> {
+    return Promise.all(this.listAdapters(platform).map(async adapter => ({
+      id: adapter.id,
+      platform,
+      targets: adapter.targets,
+      available: await adapter.isAvailable().catch(() => false)
+    })))
+  }
+
+  async createSession(platform: PlatformId, target: string, engineId?: string): Promise<SimulationSession> {
+    const adapters = this.listAdapters(platform).filter(adapter =>
+      (!engineId || adapter.id === engineId) &&
+      adapter.targets.some(supported => supported.toLowerCase() === target.toLowerCase())
+    )
+
+    if (!adapters.length) {
+      throw new Error(`No simulation adapter supports ${platform}/${target}`)
     }
-    return adapter.createSession(target)
+
+    for (const adapter of adapters) {
+      if (await adapter.isAvailable().catch(() => false)) {
+        return adapter.createSession(target)
+      }
+    }
+
+    throw new Error(`No installed simulation runtime is available for ${platform}/${target}`)
   }
 }
 

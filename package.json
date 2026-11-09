@@ -14,7 +14,9 @@
     "@tailwindcss/vite": "^4.3.5",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "tailwindcss": "^4.3.5"
+    "tailwindcss": "^4.3.5",
+    "avr8js": "0.21.1",
+    "rp2040js": "1.4.1"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",

@@ -2,7 +2,7 @@
 
 Open Source Embedded Project
 
-A browser based platform for embedded firmware projects and virtual hardware.
+An open source browser platform for embedded firmware projects and virtual hardware.
 
 ## Development
 
@@ -10,57 +10,80 @@ A browser based platform for embedded firmware projects and virtual hardware.
 git checkout dev
 npm ci
 npm run dev
-npm run build
-npm run lint
 npm test
+npm run lint
+npm run build
 ```
 
-Changes belong on `dev`. The `main` branch is reserved for reviewed releases.
+All development takes place on `dev`. `main` is reserved for approved releases.
 
 ## Architecture
 
 ```text
 src/
   App.tsx
-  index.css
   projects/
     catalog.ts
   engine/
+    adapters/
+      avr.ts
+      rp2040.ts
+      renvo.ts
+      renvo.worker.ts
     catalog.ts
     firmware.ts
+    initialize.ts
     registry.ts
     types.ts
-    index.ts
 tests/
   firmware.test.mjs
+  cpu-smoke.test.mjs
+  engine-registry.test.mjs
 ```
 
-The UI is independent of the simulation API. The engine registry only reports installed adapters. No CPU engines are installed yet. The research catalog documents source candidates; it is not a claim that each architecture runs on OSEMPro.
+The UI has no emulator dependencies. Each CPU engine implements `SimulationAdapter` and creates independent sessions implementing `SimulationSession`. One platform can register more than one engine with explicit engine selection and runtime checks. Unavailable engines are not treated as running.
 
-A project will define its target, firmware format, and custom UI. Project listings stay empty until real projects are published. Popularity data must come from real usage, never generated examples.
+## Integrated engines
 
-## Engine candidates
-
-| Platform | Candidate | Browser availability | License |
+| Platform | Engine | Status | Target |
 | --- | --- | --- | --- |
-| AVR | [avr8js](https://github.com/wokwi/avr8js) | JavaScript CPU engine | MIT |
-| PIC | [gpsim](https://gpsim.sourceforge.net/) | Native, WebAssembly port required | GPL-2.0-or-later |
-| STM32 | [Renvo Emulator](https://github.com/tinyrange/renvo_emu) | Source available WASI component for selected STM32 targets | MIT OR Apache-2.0 |
-| STM8 | [uCsim](https://github.com/danieldrotos/ucsim) | Native, WebAssembly port required | GPL |
-| ESP32 | [Renvo Emulator](https://github.com/tinyrange/renvo_emu) | Source available WASI component for selected ESP32 targets | MIT OR Apache-2.0 |
+| AVR | [avr8js](https://github.com/wokwi/avr8js) | JavaScript adapter, CPU smoke test | ATmega328P |
+| RP2040 | [rp2040js](https://github.com/wokwi/rp2040js) | JavaScript adapter, CPU smoke test | RP2040 |
+| AVR | [Renvo](https://github.com/tinyrange/renvo_emu) | WASM bridge, build required | ATmega328PB |
+| PIC | Renvo | WASM bridge, build required | PIC16F15376 |
+| STM32 | Renvo | WASM bridge, build required | F103C8T6, F411RE, L432KC, H743ZI |
+| ESP32 | Renvo | WASM bridge, build required | S3, C6, P4 |
+| STM8 | [uCsim](https://github.com/danieldrotos/ucsim) | Research only; no browser adapter | STM8 |
 
-Renvo's browser target uses WASI Preview 2 and a generated JavaScript interface. Its source is open, but its MCU models are deliberately limited in device coverage and timing fidelity. It currently lists STM32F103, F411, L432 and H743 and ESP32-C6, S3 and P4 among its targets. It also models selected AVR and PIC16 devices, making it a useful common alternative to the platform-specific candidates.
+[esp32sim](https://github.com/mikroverk/esp32sim) is an alternative fully open source, Rust based ESP32 emulator with its own WASM build. It is not bundled or registered yet. [gpsim](https://gpsim.sourceforge.net/) is an alternative native PIC emulator which would require a web port. [Renode](https://github.com/renode/renode) remains an alternative for deeper native STM32 peripherals.
 
-[Renode](https://github.com/renode/renode) is a strong native STM32 alternative with broad board-level models. [Espressif ESP-Emulator](https://github.com/espressif/esp-emulator) publishes a capable browser WASM binary, but its public repository currently describes itself as a distribution of installers, binaries, docs and helpers rather than publishing the full emulator core source. Do not assume that the entire simulator core is open source just because the distribution includes an Apache license file.
+CPU execution support is distinct from full board and peripheral compatibility. AVR8js includes ATmega328P GPIO, timers and USART glue; RP2040js models a set of RP2040 peripherals, but the adapter currently executes from XIP flash without a Pico boot ROM. ELF loading is not yet implemented in those two JavaScript adapters. Neither adapter should be used as a hardware fidelity oracle.
 
-WebAssembly alone does not guarantee that a specific MCU or peripheral is supported. Exact board support, firmware loading behavior and licenses must be verified during adapter integration.
+## Renvo WASM installation
 
-## Engine API
+The Renvo integration uses the upstream versioned WIT API through a Web Worker. The source must be built with Rust's `wasm32-wasip2` target and transpiled with `jco`.
 
-`SimulationAdapter` creates independent `SimulationSession` instances. A session loads firmware, starts, pauses, steps, resets, exposes snapshots, and disposes resources.
+```sh
+bash scripts/build-renvo.sh
+npm run dev
+```
 
-`parseFirmware` validates binary formats and Intel HEX checksums, maps HEX data into address segments, and rejects invalid or overlapping records. ELF parsing and raw BIN load addresses are delegated to target adapters. This parser does not execute firmware.
+The installer fetches the open source Renvo source, builds the WASI component, transpiles its JavaScript API, then bundles the runtime into `public/engines/renvo/`. Rust, rustup, Git and npm are required.
+
+To build a particular upstream revision, specify `RENVO_REF` before invoking the script. The runtime checks its target manifest on startup. Without installed files or if its target is absent, the Renvo adapter reports unavailable rather than returning simulated results.
+
+Renvo is a deterministic bounded runner. `step(n)` replays the firmware from reset with a cumulative instruction budget, instead of modifying persistent hardware state one instruction at a time. `start()` runs a bounded batch, not an unending execution clock. Do not use this interface for accurate electrical timing. Unsupported flash boot chains and radio peripherals remain unsupported.
+
+## Tests
+
+```sh
+npm test
+npm run lint
+npm run build
+```
+
+The CPU smoke tests execute real AVR and ARM Thumb instructions. Registry tests ensure availability and explicit backend selection. The Renvo integration requires an additional browser integration test after compiling the WASM artifacts.
 
 ## Next milestone
 
-Add a private development-only engine test route with real firmware smoke tests for each installed adapter. An obscure client URL is not authentication; use a server side access gate or trusted authenticated environment before exposing anything sensitive.
+Expose the selected engines behind a restricted development testing route. Include actual firmware uploads, controls, registers, UART, and GPIO only where an installed engine supplies them. An obscure URL is not authentication.
