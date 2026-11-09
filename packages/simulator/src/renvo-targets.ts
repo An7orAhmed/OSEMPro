@@ -49,7 +49,7 @@ export const renvoTargets: Readonly<Record<RenvoPlatform, readonly string[]>> = 
   ]
 }
 
-const intelHexTargets = new Set(['pic16f15376', 'efm8bb52f32g'])
+const intelHexTargets = new Set(['pic16f15376'])
 
 export function renvoFirmwareFormat(target: string): RenvoFirmwareFormat {
   return intelHexTargets.has(target.toLowerCase()) ? 'hex' : 'elf'

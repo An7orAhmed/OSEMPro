@@ -122,10 +122,10 @@ export const engineCandidates: readonly EngineCandidate[] = [
   {
     id: 'efm8',
     name: 'EFM8 / 8051',
-    provider: 'Renvo',
+    provider: 'Browser core required',
     architecture: 'MCS-51',
-    browserRuntime: 'wasm',
-    license: 'MIT OR Apache-2.0',
+    browserRuntime: 'port-required',
+    license: 'Not selected',
     source: 'https://github.com/tinyrange/renvo_emu'
   }
 ]

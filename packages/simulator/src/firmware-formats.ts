@@ -14,7 +14,7 @@ const armFlashBase: Readonly<Record<string, number>> = {
   rp2350: 0x10000000
 }
 
-const hexOnlyTargets = new Set(['pic16f15376', 'efm8bb52f32g'])
+const hexOnlyTargets = new Set(['pic16f15376'])
 
 export function acceptedRenvoFormats(target: string): readonly string[] {
   const selected = target.toLowerCase()
