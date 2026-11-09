@@ -241,7 +241,8 @@ export default function EngineLabPage() {
               {!installed && !checking && <p className="lab-note">
                 {selectedProfile ? <>{selectedProfile.note} <a href={selectedProfile.source} target="_blank" rel="noopener noreferrer">Reference</a></>
                   : activeEngine?.id === 'renvo' ? <>Build Renvo with <code>npm run engines:build:renvo</code>, then reload.</>
-                    : activeEngine?.id === 'picsim' ? <>Build PICsim with <code>npm run engines:build:picsim</code>, then reload.</>
+                     : activeEngine?.id === 'picsim' ? <>Build PICsim with <code>npm run engines:build:picsim</code>, then reload.</>
+                    : activeEngine?.id === 'stm32f4-emu' ? <>Install the STM32F401 WASM assets with <code>npm install</code>, then reload.</>
                       : 'No browser emulator available for this target.'}
               </p>}
               {installed && <p className="lab-note">Firmware: {firmwareTypes}{engineId === 'renvo' ? '. Renvo replay steps restart from the vector table.' : ''}</p>}

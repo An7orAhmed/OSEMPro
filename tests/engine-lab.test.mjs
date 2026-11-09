@@ -26,7 +26,7 @@ test('engine lab rejects unknown fixtures instead of simulating success', async 
 
 test('PICsim HEX instruction fixtures parse as real firmware', async () => {
   const { parseFirmware } = await import('../packages/simulator/src/firmware.ts')
-  for (const fixture of cpuSmokeFixtures.filter(item => item.browserOnly)) {
+  for (const fixture of cpuSmokeFixtures.filter(item => item.engine === 'picsim')) {
     const image = parseFirmware(fixture.filename, Uint8Array.from(fixture.bytes))
     assert.equal(image.format, 'hex')
     assert.equal(image.segments.length, 1)
