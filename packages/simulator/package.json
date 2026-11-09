@@ -1,0 +1,21 @@
+{
+  "name": "@osempro/simulator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./browser": "./src/browser.ts",
+    "./catalog": "./src/catalog.ts",
+    "./types": "./src/types.ts",
+    "./firmware": "./src/firmware.ts",
+    "./registry": "./src/registry.ts",
+    "./initialize": "./src/initialize.ts",
+    "./adapters/avr": "./src/adapters/avr.ts",
+    "./adapters/rp2040": "./src/adapters/rp2040.ts"
+  },
+  "dependencies": {
+    "avr8js": "0.21.1",
+    "rp2040js": "1.4.1"
+  }
+}
