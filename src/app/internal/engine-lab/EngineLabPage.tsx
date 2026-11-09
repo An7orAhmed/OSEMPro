@@ -228,7 +228,7 @@ export default function EngineLabPage() {
                 <button type="button" className="lab-secondary" disabled={busy || !canSmoke} onClick={runSmokeTest}>CPU test</button>
               </div>
               {!installed && !checking && <p className="lab-note">{activeEngine?.id === 'renvo' ? <>Build the Renvo WASM runtime locally with <code>npm run engines:build:renvo</code>, then reload this page.</> : 'No browser runtime is registered for this platform.'}</p>}
-              {installed && <p className="lab-note">Firmware format: {firmwareTypes}</p>}
+              {installed && <p className="lab-note">Firmware format: {firmwareTypes}{engineId === 'renvo' ? '. Each step replays from reset.' : ''}</p>}
             </section>
           </div>
 
@@ -250,7 +250,7 @@ export default function EngineLabPage() {
               {message && <p className="lab-success" role="status">{message}</p>}
               {error && <p className="lab-error" role="alert">{error}</p>}
               <div className="lab-metrics">
-                <div><span>Cycles</span><strong>{snapshot.cycles.toLocaleString()}</strong></div>
+                <div><span>{snapshot.ticks === undefined ? 'Cycles' : 'Abstract ticks'}</span><strong>{(snapshot.ticks ?? snapshot.cycles).toLocaleString()}</strong></div>
                 <div><span>Instructions</span><strong>{snapshot.instructions?.toLocaleString() ?? 'N/A'}</strong></div>
                 <div><span>Program counter</span><strong>{snapshot.registers.PC === undefined ? 'N/A' : numericValue(snapshot.registers.PC)}</strong></div>
                 {snapshot.stopReason && <div><span>Stop reason</span><strong>{snapshot.stopReason}</strong></div>}

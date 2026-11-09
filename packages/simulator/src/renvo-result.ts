@@ -45,7 +45,8 @@ export function decodeRenvoResult(value: unknown): SimulatorSnapshot {
       : undefined
 
   return {
-    cycles: numberValue(stats.time) ?? 0,
+    cycles: 0,
+    ...(numberValue(stats.time) !== undefined ? { ticks: numberValue(stats.time) } : {}),
     running: false,
     registers,
     ...(numberValue(stats.instructions) !== undefined ? { instructions: numberValue(stats.instructions) } : {}),

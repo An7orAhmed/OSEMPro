@@ -36,7 +36,8 @@ test('Renvo CPU snapshots use actual RunResult fields', () => {
     },
     uart: [72, 105, 10]
   })
-  assert.equal(snapshot.cycles, 17)
+  assert.equal(snapshot.ticks, 17)
+  assert.equal(snapshot.cycles, 0)
   assert.equal(snapshot.instructions, 12)
   assert.equal(snapshot.registers.PC, 134217732)
   assert.equal(snapshot.registers.r0, 7)

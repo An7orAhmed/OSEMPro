@@ -30,6 +30,7 @@ export interface FirmwareImage {
 
 export interface SimulatorSnapshot {
   cycles: number
+  ticks?: number
   running: boolean
   registers: Readonly<Record<string, number>>
   instructions?: number
