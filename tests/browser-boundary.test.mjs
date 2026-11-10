@@ -22,11 +22,10 @@ async function allServerFiles(path) {
 test('Next.js server imports no emulator runtime or firmware execution entrypoint', async () => {
   for (const path of [
     ...(await allServerFiles('src/server')),
-    'src/app/page.tsx',
-    'src/app/layout.tsx',
-    'src/app/internal/engine-lab/page.tsx'
+    ...(await allServerFiles('src/app'))
   ]) {
     const text = await source(path)
+    if (/^['"]use client['"]/.test(text.trimStart())) continue
     assert.doesNotMatch(text, /@osempro\/simulator\/(initialize|registry|lab|adapters|browser|firmware)/, path)
     assert.doesNotMatch(text, /(?:createEngineRegistry|parseFirmware|runCpuSmoke)\s*\(/, path)
   }
