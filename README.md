@@ -47,6 +47,10 @@ A file picker accepts firmware locally. AVR8, STM32F4 and PICsim support HEX/BIN
 
 PIC16F72 and PIC16F73 are selectable in the PIC16F family and have separate chip folders containing manufacturer PDIP-28 pin diagrams and GPIO, ADC, timer, interrupt and peripheral register maps. PIC16F73 includes USART and CCP2 registers that are absent on PIC16F72. The current PICsim WASM source does not support either target; native gpsim lists PIC16F73, but no browser port is connected. Firmware execution remains disabled until an existing upstream engine supports the exact chip.
 
+## Compact Engine Lab layout
+
+Engine Lab uses a fixed viewport layout without horizontal or vertical scrollable panels. On desktop it shows device setup, execution and a selected monitor view. On smaller screens, Setup and Monitor are separate navigation views. The monitor offers Pins, Registers and UART tabs; register and serial pages can be changed using arrows rather than scrolling. The physical chip SVG scales to the available space.
+
 ## Chip pinouts and live registers
 
 Every selectable MCU has a dedicated metadata module under `packages/simulator/src/chips/<target>/index.ts`. Each module defines its target ID, register groups, and verified physical package pinout when one is available. Data is independent from CPU emulators and the Next.js server.

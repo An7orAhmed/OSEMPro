@@ -1,6 +1,7 @@
 html:has(.lab-page),
 body:has(.lab-page) {
   height: 100%;
+  min-width: 0;
   overflow: hidden;
 }
 
