@@ -186,18 +186,16 @@ export default function EngineLabPage() {
           <div className="lab-left">
             <section className="lab-panel">
               <div className="lab-panel-heading"><h2>Platforms</h2><span>{engineCandidates.length} families</span></div>
-              <div className="lab-platforms">
-                {engineCandidates.map(candidate => {
-                  const entries = engines.find(item => item.platform === candidate.id)?.engines ?? []
-                  const ready = entries.some(item => item.available)
-                  return (
-                    <button type="button" key={candidate.id} onClick={() => selectPlatform(candidate.id)} disabled={busy || checking} className={platform === candidate.id ? 'lab-platform active' : 'lab-platform'}>
-                      <span>{candidate.name}</span>
-                      <span className={ready ? 'lab-pill ready' : 'lab-pill'}>{checking ? 'Checking' : ready ? 'Installed' : 'Unavailable'}</span>
-                    </button>
-                  )
-                })}
-              </div>
+              <label className="lab-field lab-platform-field">
+                <span>Platform</span>
+                <select value={platform} disabled={busy || checking} onChange={event => selectPlatform(event.target.value as PlatformId)}>
+                  {engineCandidates.map(candidate => {
+                    const entries = engines.find(item => item.platform === candidate.id)?.engines ?? []
+                    const ready = entries.some(item => item.available)
+                    return <option key={candidate.id} value={candidate.id}>{candidate.name}{checking ? '' : ready ? ' (installed)' : ' (unavailable)'}</option>
+                  })}
+                </select>
+              </label>
             </section>
 
             <section className="lab-panel">
