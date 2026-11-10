@@ -40,6 +40,7 @@ export default function EngineLabPage() {
   const [stepCount, setStepCount] = useState(1)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [mobileView, setMobileView] = useState<'setup' | 'monitor'>('setup')
 
   const activePlatform = useMemo(() => engines.find(option => option.platform === platform), [engines, platform])
   const activeEngine = activePlatform?.engines.find(option => option.id === engineId)
@@ -145,6 +146,7 @@ export default function EngineLabPage() {
       setSnapshot(state)
       setLoaded(true)
       setMessage(`Loaded ${file.name}`)
+      setMobileView('monitor')
     })
   }
 
@@ -166,6 +168,7 @@ export default function EngineLabPage() {
       if (!result.passed) throw new Error(`CPU test failed: ${result.register} was ${String(result.actual)}, expected ${result.expected}`)
       if (!loaded) setSnapshot(result.snapshot)
       setMessage(`CPU test passed: ${result.register} = ${result.expected}`)
+      setMobileView('monitor')
     })
   }
 
@@ -180,87 +183,99 @@ export default function EngineLabPage() {
         <div className="lab-title">ENGINE LAB <span>LOCAL DEVELOPMENT</span></div>
       </header>
 
-      <main className="lab-content">
-        <div className="lab-layout">
-          <div className="lab-left">
-            <section className="lab-panel">
-              <div className="lab-panel-heading"><h2>Platforms</h2><span>{engineCandidates.length} families</span></div>
-              <label className="lab-field lab-platform-field">
-                <span>Platform</span>
-                <select value={platform} disabled={busy || checking} onChange={event => selectPlatform(event.target.value as PlatformId)}>
-                  {engineCandidates.map(candidate => {
-                    const entries = engines.find(item => item.platform === candidate.id)?.engines ?? []
-                    const ready = entries.some(item => item.available)
-                    return <option key={candidate.id} value={candidate.id}>{candidate.name}{checking ? '' : ready ? ' (installed)' : ' (unavailable)'}</option>
-                  })}
-                </select>
-              </label>
-            </section>
+      <nav className="lab-mobile-navigation" aria-label="Engine Lab panels">
+        <button type="button" className={mobileView === 'setup' ? 'active' : ''} onClick={() => setMobileView('setup')}>Setup</button>
+        <button type="button" className={mobileView === 'monitor' ? 'active' : ''} onClick={() => setMobileView('monitor')}>Monitor</button>
+      </nav>
 
-            <section className="lab-panel">
-              <div className="lab-panel-heading"><h2>Configuration</h2></div>
-              <label className="lab-field">
-                <span>Engine</span>
-                <select value={engineId} disabled={busy || !activePlatform?.engines.length} onChange={event => selectEngine(event.target.value)}>
-                  {(activePlatform?.engines ?? []).map(engine => <option value={engine.id} key={engine.id}>{engine.id}{engine.available ? '' : ' (not installed)'}</option>)}
-                </select>
-              </label>
-              <label className="lab-field">
-                <span>Target MCU</span>
-                <select value={target} disabled={busy || targetOptions.length === 0} onChange={event => { setTarget(event.target.value); clearFirmware() }}>
-                  {targetOptions.map(value => <option key={value} value={value}>{value}{getPlannedTarget(platform, value) ? ' (port pending)' : ''}</option>)}
-                </select>
-              </label>
-              <label className="lab-field">
-                <span>Firmware</span>
-                <input type="file" accept={firmwareTypes.replaceAll(" ", "")} disabled={busy || !installed} onChange={event => { clearFirmware(); setFile(event.target.files?.[0] ?? null) }} />
-              </label>
-              <div className="lab-setup-actions">
-                <button type="button" className="lab-primary" disabled={busy || !file || !installed} onClick={loadFirmware}>Load firmware</button>
-                <button type="button" className="lab-secondary" disabled={busy || !canSmoke} onClick={runSmokeTest}>CPU test</button>
+      <main className="lab-content">
+        <div className={`lab-layout lab-view-${mobileView}`}>
+          <div className="lab-left">
+            <section className="lab-panel lab-setup-panel">
+              <div className="lab-panel-heading">
+                <h2>Device setup</h2>
+                <span>{engineCandidates.length} platforms</span>
               </div>
-              {!installed && !checking && <p className="lab-note">
-                {selectedProfile ? <>{selectedProfile.note} <a href={selectedProfile.source} target="_blank" rel="noopener noreferrer">Reference</a></>
-                  : activeEngine?.id === 'renvo' ? <>Install the Renvo runtime with <code>./run.sh</code>, then reload.</>
-                     : activeEngine?.id === 'picsim' ? <>Install the PICsim runtime with <code>./run.sh</code>, then reload.</>
-                    : activeEngine?.id === 'stm32f4-emu' ? <>Install the STM32F4 runtime with <code>./run.sh</code>, then reload.</>
-                      : 'No browser emulator available for this target.'}
-              </p>}
-              {installed && <p className="lab-note">Firmware: {firmwareTypes}{engineId === 'renvo' ? '. Renvo replay steps restart from the vector table.' : ''}</p>}
+              <div className="lab-fields">
+                <label className="lab-field">
+                  <span>Platform</span>
+                  <select value={platform} disabled={busy || checking} onChange={event => selectPlatform(event.target.value as PlatformId)}>
+                    {engineCandidates.map(candidate => {
+                      const available = engines.find(item => item.platform === candidate.id)?.engines.some(engine => engine.available)
+                      return <option key={candidate.id} value={candidate.id}>{candidate.name}{checking ? '' : available ? ' (ready)' : ' (unavailable)'}</option>
+                    })}
+                  </select>
+                </label>
+                <label className="lab-field">
+                  <span>Engine</span>
+                  <select value={engineId} disabled={busy || !activePlatform?.engines.length} onChange={event => selectEngine(event.target.value)}>
+                    {(activePlatform?.engines ?? []).map(engine => (
+                      <option value={engine.id} key={engine.id}>{engine.id}{engine.available ? '' : ' (not installed)'}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="lab-field">
+                  <span>Target MCU</span>
+                  <select value={target} disabled={busy || targetOptions.length === 0} onChange={event => { setTarget(event.target.value); clearFirmware() }}>
+                    {targetOptions.map(value => (
+                      <option key={value} value={value}>{value}{getPlannedTarget(platform, value) ? ' (pending)' : ''}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="lab-field">
+                  <span>Firmware</span>
+                  <input type="file" accept={firmwareTypes.replaceAll(' ', '')} disabled={busy || !installed}
+                    onChange={event => { clearFirmware(); setFile(event.target.files?.[0] ?? null) }} />
+                </label>
+              </div>
+              <div className="lab-setup-actions">
+                <button type="button" className="lab-primary" disabled={busy || !file || !installed} onClick={loadFirmware}>Load</button>
+                <button type="button" disabled={busy || !canSmoke} onClick={runSmokeTest}>CPU test</button>
+              </div>
+              {!installed && !checking && (
+                <p className="lab-note">
+                  {selectedProfile
+                    ? <>{selectedProfile.note} <a href={selectedProfile.source} target="_blank" rel="noopener noreferrer">Source</a></>
+                    : activeEngine ? <>Runtime unavailable. Run <code>./run.sh</code>.</> : 'No browser emulator for this target.'}
+                </p>
+              )}
+              {installed && <p className="lab-note">Firmware: {firmwareTypes}{engineId === 'renvo' ? ' · Renvo steps replay from reset' : ''}</p>}
             </section>
           </div>
 
           <div className="lab-right">
-            <section className="lab-panel">
-              <div className="lab-panel-heading">
-                <h2>Execution</h2>
-                <span className={snapshot.running ? 'lab-pill ready' : 'lab-pill'}>{snapshot.running ? 'Running' : loaded ? 'Stopped' : 'No firmware'}</span>
+            <section className="lab-panel lab-execution">
+              <div className="lab-execution-bar">
+                <div className="lab-panel-heading">
+                  <h2>Execution</h2>
+                  <span className={snapshot.running ? 'lab-pill ready' : 'lab-pill'}>
+                    {snapshot.running ? 'Running' : loaded ? 'Stopped' : 'No firmware'}
+                  </span>
+                </div>
+                <div className="lab-controls">
+                  <button type="button" onClick={() => control('start')} disabled={busy || !loaded || snapshot.running} className="lab-primary">Run</button>
+                  <button type="button" onClick={() => control('pause')} disabled={busy || !loaded || !snapshot.running}>Pause</button>
+                  <button type="button" onClick={() => control('step')} disabled={busy || !loaded || snapshot.running}>Step</button>
+                  <select value={stepCount} disabled={busy || !loaded || snapshot.running} onChange={event => setStepCount(Number(event.target.value))} aria-label="Instructions per step">
+                    {[1, 10, 100, 1000].map(count => <option key={count} value={count}>{count} insn</option>)}
+                  </select>
+                  <button type="button" onClick={() => control('reset')} disabled={busy || !loaded}>Reset</button>
+                </div>
               </div>
-              <div className="lab-controls">
-                <button type="button" onClick={() => control('start')} disabled={busy || !loaded || snapshot.running} className="lab-primary">Run</button>
-                <button type="button" onClick={() => control('pause')} disabled={busy || !loaded || !snapshot.running}>Pause</button>
-                <button type="button" onClick={() => control('step')} disabled={busy || !loaded || snapshot.running}>Step</button>
-                <select value={stepCount} disabled={busy || !loaded || snapshot.running} onChange={event => setStepCount(Number(event.target.value))} aria-label="Instructions per step">
-                  {[1, 10, 100, 1000].map(count => <option key={count} value={count}>{count} insn</option>)}
-                </select>
-                <button type="button" onClick={() => control('reset')} disabled={busy || !loaded}>Reset</button>
-              </div>
-              {message && <p className="lab-success" role="status">{message}</p>}
-              {error && <p className="lab-error" role="alert">{error}</p>}
               <div className="lab-metrics">
                 <div><span>{snapshot.ticks === undefined ? 'Cycles' : 'Abstract ticks'}</span><strong>{(snapshot.ticks ?? snapshot.cycles).toLocaleString()}</strong></div>
                 <div><span>Instructions</span><strong>{snapshot.instructions?.toLocaleString() ?? 'N/A'}</strong></div>
-                <div><span>Program counter</span><strong>{snapshot.registers.PC === undefined ? 'N/A' : numericValue(snapshot.registers.PC)}</strong></div>
-                {snapshot.stopReason && <div><span>Stop reason</span><strong>{snapshot.stopReason}</strong></div>}
+                <div><span>PC</span><strong>{snapshot.registers.PC === undefined ? 'N/A' : numericValue(snapshot.registers.PC)}</strong></div>
+                {snapshot.stopReason && <div title={snapshot.stopReason}><span>Stop</span><strong>{snapshot.stopReason}</strong></div>}
               </div>
+              {(message || error) && (
+                <p className={error ? 'lab-error' : 'lab-success'} role={error ? 'alert' : 'status'} title={error || message}>
+                  {error || message}
+                </p>
+              )}
             </section>
 
-            <ChipInspector target={target} snapshot={snapshot} />
-
-            <section className="lab-panel">
-              <div className="lab-panel-heading"><h2>UART output</h2><span>Read only</span></div>
-              <pre className="lab-terminal">{snapshot.serial || 'No UART data'}</pre>
-            </section>
+            <ChipInspector key={target} target={target} snapshot={snapshot} />
           </div>
         </div>
       </main>
