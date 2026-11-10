@@ -77,7 +77,7 @@ test('dsPIC30F CALL and RETURN use a software stack', async () => {
 })
 
 test('dsPIC30F loads INHX32 firmware with zero phantom bytes and conditional branches', async () => {
-  const bytes = binary([0x200001, 0xb00011, 0x320001, 0x200011, 0x2002a1])
+  const bytes = binary([0x2ffff1, 0xb00011, 0x320001, 0x200011, 0x2002a1])
   const hex = [
     hexRecord(0, 4, [0, 0]),
     hexRecord(0, 0, bytes.subarray(0, 16)),
