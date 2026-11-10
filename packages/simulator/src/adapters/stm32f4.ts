@@ -1,4 +1,5 @@
 import { stm32f4Targets } from '../stm32f4-targets.ts'
+import { getChipDefinition } from '../chips/index.ts'
 import type { STM32F4Target } from '../stm32f4-targets.ts'
 import type { FirmwareImage, SimulationAdapter, SimulationSession, SimulatorSnapshot } from '../types.ts'
 
@@ -162,19 +163,32 @@ class STM32F4Session implements SimulationSession {
     const gpioRegisters: Record<string, number> = {}
     for (let port = 0; port < (this.profile.chip === 'stm32f407' ? 11 : 6); port += 1) {
       const name = 'GPIO' + String.fromCharCode(65 + port)
-      const address = 0x40020000 + port * 0x400
-      const moder = this.machine.read32(address)
-      const input = this.machine.read32(address + 0x10) & 0xffff
-      const output = this.machine.read32(address + 0x14) & 0xffff
-      let outputMask = 0
-      for (let bit = 0; bit < 16; bit += 1) {
-        if ((moder >>> (bit * 2) & 3) === 1) outputMask |= 1 << bit
+      const base = 0x40020000 + port * 0x400
+      const moder = this.safeRead32(base)
+      const input = this.safeRead32(base + 0x10)
+      const output = this.safeRead32(base + 0x14)
+      if (input !== undefined) {
+        gpio[name] = input & 0xffff
+        gpioRegisters[`${name}_IDR`] = input & 0xffff
       }
-      gpio[name] = input
-      gpioDirections[name] = outputMask
-      gpioRegisters[`${name}_MODER`] = moder
-      gpioRegisters[`${name}_IDR`] = input
-      gpioRegisters[`${name}_ODR`] = output
+      if (moder !== undefined) {
+        let outputMask = 0
+        for (let bit = 0; bit < 16; bit += 1) {
+          if ((moder >>> (bit * 2) & 3) === 1) outputMask |= 1 << bit
+        }
+        gpioDirections[name] = outputMask
+        gpioRegisters[`${name}_MODER`] = moder
+      }
+      if (output !== undefined) gpioRegisters[`${name}_ODR`] = output & 0xffff
+    }
+    const peripherals: Record<string, Record<string, number>> = { GPIO: gpioRegisters }
+    for (const [group, addresses] of Object.entries(getChipDefinition(this.profile.id)?.registerMap ?? {})) {
+      const registers: Record<string, number> = {}
+      for (const [name, address] of Object.entries(addresses)) {
+        const value = this.safeRead32(address)
+        if (value !== undefined) registers[name] = value
+      }
+      if (Object.keys(registers).length) peripherals[group] = registers
     }
     const fault = this.machine.faultInfo()
     return {
@@ -184,33 +198,20 @@ class STM32F4Session implements SimulationSession {
       registers,
       gpio,
       gpioDirections,
-      peripherals: {
-        GPIO: gpioRegisters,
-        ADC: {
-          ADC1_SR: this.machine.read32(0x40012000),
-          ADC1_CR1: this.machine.read32(0x40012004),
-          ADC1_CR2: this.machine.read32(0x40012008),
-          ADC1_DR: this.machine.read32(0x4001204c)
-        },
-        Timers: {
-          TIM2_CR1: this.machine.read32(0x40000000),
-          TIM2_CNT: this.machine.read32(0x40000024),
-          TIM2_PSC: this.machine.read32(0x40000028),
-          TIM2_ARR: this.machine.read32(0x4000002c)
-        },
-        Interrupts: {
-          EXTI_IMR: this.machine.read32(0x40013c00),
-          EXTI_PR: this.machine.read32(0x40013c14)
-        },
-        UART: {
-          USART1_SR: this.machine.read32(0x40011000),
-          USART1_CR1: this.machine.read32(0x4001100c)
-        }
-      },
+      peripherals,
       serial: this.output,
       ...(fault ? { error: 'CPU fault at PC ' + String(fault.pc ?? 'unknown') } : {}),
       ...(this.error ? { error: this.error } : {}),
       ...(this.stopReason ? { stopReason: this.stopReason } : {})
+    }
+  }
+
+  private safeRead32(address: number): number | undefined {
+    try {
+      const value = this.machine.read32(address)
+      return Number.isFinite(value) ? value >>> 0 : undefined
+    } catch {
+      return undefined
     }
   }
 

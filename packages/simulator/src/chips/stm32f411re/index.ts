@@ -369,5 +369,29 @@ export const chip: ChipDefinition = {
     "Interrupts",
     "UART"
   ],
-  "pinoutSource": "https://www.st.com/resource/en/datasheet/stm32f411re.pdf"
+  "pinoutSource": "https://www.st.com/resource/en/datasheet/stm32f411re.pdf",
+  "registerMap": {
+    "ADC": {
+      "ADC1_SR": 1073815552,
+      "ADC1_CR1": 1073815556,
+      "ADC1_CR2": 1073815560
+    },
+    "Timers": {
+      "TIM2_CR1": 1073741824,
+      "TIM2_CNT": 1073741860,
+      "TIM2_PSC": 1073741864,
+      "TIM2_ARR": 1073741868,
+      "TIM3_CNT": 1073742884,
+      "TIM4_CNT": 1073743908,
+      "TIM5_CNT": 1073744932
+    },
+    "Interrupts": {
+      "EXTI_IMR": 1073822720,
+      "EXTI_PR": 1073822740
+    },
+    "UART": {
+      "USART1_SR": 1073811456,
+      "USART1_CR1": 1073811468
+    }
+  }
 }

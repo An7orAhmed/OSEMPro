@@ -55,3 +55,12 @@ test('PICsim register mappings use exact documented SFR addresses', () => {
   assert.equal(pic18.registerMap.Timers.TMR0L, 0xfd6)
   assert.equal(pic18.registerMap.Interrupts.INTCON, 0xff2)
 })
+
+test('STM32F4 register addresses remain device specific and no unsupported ADC is invented', () => {
+  const f401 = getChipDefinition('stm32f401re')
+  const f407 = getChipDefinition('stm32f407vg')
+  assert.equal(f401.registerMap.ADC.ADC1_SR, 0x40012000)
+  assert.equal(f401.registerMap.ADC.ADC2_SR, undefined)
+  assert.equal(f407.registerMap.ADC.ADC2_SR, 0x40012100)
+  assert.equal(f407.registerMap.Interrupts.EXTI_PR, 0x40013c14)
+})
