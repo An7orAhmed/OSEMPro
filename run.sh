@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+trap 'status=$?; printf "\n[OSEMPro] Unexpected failure at line %s (exit %s): %s\n" "$LINENO" "$status" "$BASH_COMMAND" >&2' ERR
+
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$root"
 
@@ -94,10 +96,23 @@ ensure_node() {
     [[ ! -e "$NVM_DIR" ]] || fail "Cannot initialize existing nvm directory: $NVM_DIR"
     git clone --depth 1 --branch v0.40.3 https://github.com/nvm-sh/nvm.git "$NVM_DIR"
   fi
-  source "$NVM_DIR/nvm.sh"
-  nvm install 24
-  nvm use 24 >/dev/null
+  set +u
+  if ! source "$NVM_DIR/nvm.sh" --no-use; then
+    set -u
+    fail 'Could not load nvm from the installed directory'
+  fi
+  if ! nvm install 24; then
+    set -u
+    fail 'Could not install Node.js 24 with nvm'
+  fi
+  if ! nvm use 24 >/dev/null; then
+    set -u
+    fail 'Could not activate Node.js 24 with nvm'
+  fi
+  set -u
   command -v npm >/dev/null 2>&1 || fail 'npm is unavailable after installing Node.js'
+  node -e 'process.exit(Number(process.versions.node.split(".")[0]) === 24 ? 0 : 1)' || fail 'Node.js 24 did not activate'
+  log "Node.js $(node --version) and npm $(npm --version) ready"
 }
 
 ensure_rust() {
