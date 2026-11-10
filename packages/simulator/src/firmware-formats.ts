@@ -4,14 +4,6 @@ import type { FirmwareImage, FirmwareSegment } from './types.ts'
 const armFlashBase: Readonly<Record<string, number>> = {
   stm32f103c8: 0x08000000,
   stm32f411re: 0x08000000,
-  stm32l432kc: 0x08000000,
-  stm32h743zi: 0x08000000,
-  atsamd21e18: 0x00000000,
-  atsamd51j19a: 0x00000000,
-  nrf52840: 0x00000000,
-  r7fa4m1ab3cfm: 0x00000000,
-  rp2040: 0x10000000,
-  rp2350: 0x10000000
 }
 
 const hexOnlyTargets = new Set(['pic16f15376'])

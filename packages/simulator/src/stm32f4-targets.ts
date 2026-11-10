@@ -1,6 +1,6 @@
 export interface STM32F4Target {
   id: string
-  chip: 'stm32f401'
+  chip: 'stm32f401' | 'stm32f407' | 'stm32f411'
   flashSize: number
   ramSize: number
 }
@@ -9,5 +9,7 @@ export const stm32f4Targets: readonly STM32F4Target[] = [
   { id: 'stm32f401cc', chip: 'stm32f401', flashSize: 256 * 1024, ramSize: 64 * 1024 },
   { id: 'stm32f401ce', chip: 'stm32f401', flashSize: 512 * 1024, ramSize: 96 * 1024 },
   { id: 'stm32f401rc', chip: 'stm32f401', flashSize: 256 * 1024, ramSize: 64 * 1024 },
-  { id: 'stm32f401re', chip: 'stm32f401', flashSize: 512 * 1024, ramSize: 96 * 1024 }
+  { id: 'stm32f401re', chip: 'stm32f401', flashSize: 512 * 1024, ramSize: 96 * 1024 },
+  { id: 'stm32f407vg', chip: 'stm32f407', flashSize: 1024 * 1024, ramSize: 192 * 1024 },
+  { id: 'stm32f411re', chip: 'stm32f411', flashSize: 512 * 1024, ramSize: 128 * 1024 }
 ]

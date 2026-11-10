@@ -151,7 +151,7 @@ class AVRSession implements SimulationSession {
 
 export class AVR8jsAdapter implements SimulationAdapter {
   readonly id = 'avr8js'
-  readonly platform = 'avr'
+  readonly platform = 'avr8'
   readonly targets = ['atmega328p', 'atmega328']
 
   async isAvailable(): Promise<boolean> {

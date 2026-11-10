@@ -26,21 +26,21 @@ type Runtime = {
   svdXml: string
 }
 
-let runtimePromise: Promise<Runtime> | null = null
+const runtimes = new Map<STM32F4Target['chip'], Promise<Runtime>>()
 const baseUrl = '/engines/stm32f4'
 const wasmUrl = baseUrl + '/vendor/stm32_periph_wasm_bg.wasm'
 
-async function loadRuntime(): Promise<Runtime> {
+async function loadRuntime(chip: STM32F4Target['chip']): Promise<Runtime> {
   if (typeof Worker === 'undefined') throw new Error('STM32F4 runtime requires a browser worker')
 
-  if (!runtimePromise) {
-    runtimePromise = (async () => {
+  if (!runtimes.has(chip)) {
+    runtimes.set(chip, (async () => {
       const factoryUrl = baseUrl + '/stm32f4.js'
       const bindingsUrl = baseUrl + '/vendor/stm32_periph_wasm.js'
       const [module, bindings, svdResponse, wasmResponse] = await Promise.all([
         import(/* webpackIgnore: true */ factoryUrl) as Promise<{ STM32F4: STM32F4Factory }>,
         import(/* webpackIgnore: true */ bindingsUrl) as Promise<Record<string, unknown>>,
-        fetch(baseUrl + '/vendor/stm32f401.svd'),
+        fetch(baseUrl + '/vendor/' + chip + '.svd'),
         fetch(wasmUrl, { method: 'HEAD' })
       ])
 
@@ -52,14 +52,14 @@ async function loadRuntime(): Promise<Runtime> {
       }
 
       return { factory: module.STM32F4, bindings, svdXml: await svdResponse.text() }
-    })()
+    })())
   }
 
-  return runtimePromise
+  return runtimes.get(chip)!
 }
 
 async function createMachine(profile: STM32F4Target): Promise<STM32F4Machine> {
-  const { factory, bindings, svdXml } = await loadRuntime()
+  const { factory, bindings, svdXml } = await loadRuntime(profile.chip)
   return factory.create({
     chip: profile.chip,
     flash_size: profile.flashSize,
@@ -101,7 +101,7 @@ class STM32F4Session implements SimulationSession {
 
     if (image.format === 'bin') {
       if (image.bytes.length > this.profile.flashSize) {
-        throw new Error('Firmware exceeds selected STM32F401 flash capacity')
+        throw new Error('Firmware exceeds selected STM32 flash capacity')
       }
       this.machine.loadBin(image.bytes)
     } else if (image.format === 'hex') {
@@ -158,7 +158,7 @@ class STM32F4Session implements SimulationSession {
       if (typeof value === 'number' && Number.isFinite(value)) registers[name] = value >>> 0
     }
     const gpio: Record<string, number> = {}
-    for (let port = 0; port < 6; port += 1) {
+    for (let port = 0; port < (this.profile.chip === 'stm32f407' ? 11 : 6); port += 1) {
       gpio['GPIO' + String.fromCharCode(65 + port)] = this.machine.read32(0x40020014 + port * 0x400) & 0xffff
     }
     const fault = this.machine.faultInfo()
@@ -218,7 +218,7 @@ class STM32F4Session implements SimulationSession {
 
   private ensureLoaded(): void {
     this.ensureActive()
-    if (!this.loaded) throw new Error('Load STM32F401 firmware first')
+    if (!this.loaded) throw new Error('Load STM32 firmware first')
   }
 }
 
@@ -226,30 +226,38 @@ export class STM32F4Adapter implements SimulationAdapter {
   readonly id = 'stm32f4-emu'
   readonly platform = 'stm32'
   readonly targets = stm32f4Targets.map(target => target.id)
-  private ready: Promise<boolean> | null = null
+  private installed: Promise<readonly string[]> | null = null
 
   async isAvailable(): Promise<boolean> {
-    if (!this.ready) {
-      this.ready = (async () => {
-        try {
-          const machine = await createMachine(stm32f4Targets[0])
-          machine.close()
-          return true
-        } catch {
-          return false
-        }
-      })()
-    }
-    return this.ready
+    return (await this.availableTargets()).length > 0
   }
 
   async availableTargets(): Promise<readonly string[]> {
-    return await this.isAvailable() ? this.targets : []
+    if (!this.installed) {
+      this.installed = (async () => {
+        const supportedChips = new Set<STM32F4Target['chip']>()
+        for (const profile of stm32f4Targets) {
+          if (supportedChips.has(profile.chip)) continue
+          try {
+            const machine = await createMachine(profile)
+            machine.close()
+            supportedChips.add(profile.chip)
+          } catch {
+            continue
+          }
+        }
+        return this.targets.filter(id => {
+          const profile = stm32f4Targets.find(item => item.id === id)
+          return profile ? supportedChips.has(profile.chip) : false
+        })
+      })()
+    }
+    return this.installed
   }
 
   async createSession(target: string): Promise<SimulationSession> {
     const profile = stm32f4Targets.find(option => option.id === target.toLowerCase())
-    if (!profile) throw new Error(`Unsupported STM32F401 target: ${target}`)
+    if (!profile) throw new Error(`Unsupported STM32 target: ${target}`)
     return new STM32F4Session(await createMachine(profile), profile)
   }
 }

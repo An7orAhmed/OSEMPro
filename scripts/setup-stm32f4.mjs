@@ -16,6 +16,8 @@ const assets = [
   'site/vendor/stm32_periph_wasm.js',
   'site/vendor/stm32_periph_wasm_bg.wasm',
   'site/vendor/stm32f401.svd',
+  'site/vendor/stm32f407.svd',
+  'site/vendor/stm32f411.svd',
   'LICENSE'
 ]
 
@@ -27,4 +29,4 @@ for (const asset of assets) {
   await copyFile(source, destination)
 }
 
-console.log('STM32F401 browser WASM assets prepared')
+console.log('STM32F401, F407 and F411 browser WASM assets prepared')
