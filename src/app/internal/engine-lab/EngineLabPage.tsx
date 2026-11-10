@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import ChipInspector from './ChipInspector'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { engineCandidates } from '@osempro/simulator/catalog'
 import type { PlatformId, SimulatorSnapshot } from '@osempro/simulator/types'
@@ -168,8 +169,6 @@ export default function EngineLabPage() {
     })
   }
 
-  const registers = Object.entries(snapshot.registers)
-  const gpio = Object.entries(snapshot.gpio ?? {})
 
   return (
     <div className="lab-page">
@@ -256,24 +255,7 @@ export default function EngineLabPage() {
               </div>
             </section>
 
-            <div className="lab-data-grid">
-              <section className="lab-panel">
-                <div className="lab-panel-heading"><h2>Registers</h2><span>{registers.length}</span></div>
-                <div className="lab-data-scroll">
-                  {registers.length ? <div className="lab-register-grid">
-                    {registers.map(([name, value]) => <div key={name}><span>{name}</span><code>{numericValue(value)}</code></div>)}
-                  </div> : <p className="lab-empty">No register data</p>}
-                </div>
-              </section>
-              <section className="lab-panel">
-                <div className="lab-panel-heading"><h2>GPIO</h2><span>{gpio.length}</span></div>
-                <div className="lab-data-scroll">
-                  {gpio.length ? <div className="lab-register-grid">
-                    {gpio.map(([name, value]) => <div key={name}><span>{name}</span><code>{numericValue(value)}</code></div>)}
-                  </div> : <p className="lab-empty">No GPIO data</p>}
-                </div>
-              </section>
-            </div>
+            <ChipInspector target={target} snapshot={snapshot} />
 
             <section className="lab-panel">
               <div className="lab-panel-heading"><h2>UART output</h2><span>Read only</span></div>

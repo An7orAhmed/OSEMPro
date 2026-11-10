@@ -340,3 +340,152 @@
   }
 
 }
+
+.lab-chip-panel {
+  overflow: hidden;
+}
+
+.chip-visual {
+  overflow-x: auto;
+  border: 1px solid #ffffff12;
+  border-radius: 13px;
+  background: radial-gradient(circle at center, #202844, #0c111e 75%);
+}
+
+.chip-diagram {
+  display: block;
+  width: 100%;
+  min-width: 460px;
+  max-height: 580px;
+}
+
+.chip-diagram .chip-high {
+  stroke: #62dfb6;
+  fill: #62dfb6;
+}
+
+.chip-diagram .chip-low {
+  stroke: #7aaaff;
+  fill: #7aaaff;
+}
+
+.chip-diagram .chip-unknown {
+  stroke: #8994ac;
+  fill: #8994ac;
+}
+
+.chip-diagram .chip-power {
+  stroke: #e0b77c;
+  fill: #e0b77c;
+}
+
+.chip-pin-number {
+  stroke: none;
+  fill: #b4bdd4;
+}
+
+.chip-pin-label {
+  stroke: none;
+  fill: #dee4f6;
+}
+
+.chip-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 17px;
+  margin-top: 16px;
+  color: #9ba7c1;
+  font-size: 11px;
+}
+
+.chip-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.chip-legend i {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.chip-legend-high {
+  background: #62dfb6;
+}
+
+.chip-legend-low {
+  background: #7aaaff;
+}
+
+.chip-legend-unknown {
+  background: #8994ac;
+}
+
+.chip-datasheet {
+  display: inline-block;
+  margin-top: 13px;
+  color: #b4a6fb;
+  font-size: 12px;
+}
+
+.chip-placeholder {
+  display: grid;
+  min-height: 240px;
+  place-items: center;
+  border: 1px solid #ffffff12;
+  border-radius: 13px;
+  background: radial-gradient(circle at center, #202844, #0c111e 75%);
+}
+
+.chip-placeholder-body {
+  display: flex;
+  width: min(240px, 72%);
+  min-height: 152px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 2px solid #8994ac;
+  border-radius: 17px;
+  background: #151b2d;
+  color: #e9ecfc;
+  text-align: center;
+}
+
+.chip-placeholder-body small {
+  color: #9ba7c1;
+}
+
+.chip-register-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.chip-register-group {
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid #ffffff12;
+  border-radius: 12px;
+  background: #0c101c;
+}
+
+.chip-register-group h3 {
+  margin: 0 0 14px;
+  color: #d4d9f0;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.chip-register-group .lab-empty {
+  padding: 10px 0;
+  text-align: left;
+}
+
+@media (max-width: 600px) {
+  .chip-register-groups {
+    grid-template-columns: 1fr;
+  }
+}
