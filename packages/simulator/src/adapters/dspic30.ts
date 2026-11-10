@@ -109,7 +109,7 @@ export class DsPic30Session implements SimulationSession {
       running: this.running,
       instructions: this.instructions,
       registers: {
-        ...Object.fromEntries(Array.from(this.registers, (value, index) => [`W${index}`, value])),
+        ...Object.fromEntries(Array.from(this.registers, (value, index): [string, number] => [`W${index}`, value])),
         PC: this.pc,
         SR: this.status
       },

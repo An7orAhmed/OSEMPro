@@ -68,11 +68,11 @@ export const engineCandidates: readonly EngineCandidate[] = [
   {
     id: 'dspic30f',
     name: 'dsPIC30F',
-    provider: 'Browser core pending',
-    architecture: '16-bit dsPIC DSP',
-    browserRuntime: 'port-required',
-    license: 'Not selected',
-    source: 'https://developerhelp.microchip.com/xwiki/bin/view/products/mcu-mpu/16bit-mcu/instruction-set-architecture/'
+    provider: 'OSEMPro dsPIC30 CPU (experimental)',
+    architecture: '30F2010 / 30F4011 / 30F4013',
+    browserRuntime: 'javascript',
+    license: 'Project source',
+    source: 'https://github.com/An7orAhmed/OSEMPro'
   },
   {
     id: 'esp8266',

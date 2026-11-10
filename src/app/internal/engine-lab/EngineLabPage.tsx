@@ -192,7 +192,7 @@ export default function EngineLabPage() {
                   {engineCandidates.map(candidate => {
                     const entries = engines.find(item => item.platform === candidate.id)?.engines ?? []
                     const ready = entries.some(item => item.available)
-                    return <option key={candidate.id} value={candidate.id}>{candidate.name}{checking ? '' : ready ? ' (installed)' : ' (unavailable)'}</option>
+                    return <option key={candidate.id} value={candidate.id}>{candidate.name}{checking ? '' : ready ? candidate.id === 'dspic30f' ? ' (experimental CPU)' : ' (installed)' : ' (unavailable)'}</option>
                   })}
                 </select>
               </label>
@@ -228,6 +228,7 @@ export default function EngineLabPage() {
                       : 'No browser emulator available for this target.'}
               </p>}
               {installed && <p className="lab-note">Firmware: {firmwareTypes}{engineId === 'renvo' ? '. Renvo replay steps restart from the vector table.' : ''}</p>}
+              {installed && platform === 'dspic30f' && <p className="lab-note">Experimental CPU subset. HEX/BIN needs four bytes per 24-bit opcode. DSP and peripherals are not yet implemented.</p>}
             </section>
           </div>
 

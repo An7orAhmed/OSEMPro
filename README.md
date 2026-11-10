@@ -35,7 +35,7 @@ OSEMPro intentionally exposes only these MCU families and series.
 | PIC16F | Selected 16F models | PICsim WASM, built by run.sh; Renvo alternative for 16F15376 |
 | PIC18F | Selected 18F models | PICsim WASM, built by run.sh |
 | PIC24F | Selected 24FJ models | Port pending |
-| dsPIC30F | Selected 30F models | Port pending |
+| dsPIC30F | 30F2010, 30F4011, 30F4013 | Experimental JavaScript CPU with padded HEX/BIN and incomplete ISA |
 | ESP8266 | ESP8266EX | Port pending |
 | ESP32 | S3, C6, P4 | Renvo WASM, built by run.sh, ELF only at present |
 
@@ -43,7 +43,7 @@ Registered models are not automatically runnable. The Engine Lab checks each act
 
 No separate npm build commands are needed. `./run.sh` installs the required tools and builds the PICsim and Renvo runtimes automatically. These are real browser runtimes; models without an emulator core remain unavailable.
 
-A file picker accepts firmware locally. AVR8, STM32F4, PIC12F675/683 and PICsim support HEX/BIN; PICsim converts BIN to Intel HEX in the browser. Renvo wraps BIN/HEX into executable images for its supported STM32 flash layouts, and accepts Intel HEX on PIC16F15376. Current Renvo ESP32 targets require ELF. ESP8266, PIC12F1840, PIC24F and dsPIC30F remain unavailable until actual browser CPU cores exist. The PIC12F675/683 core runs the classic 14-bit instruction set and GPIO direction/latch basics; oscillator, ADC, EEPROM, timers, interrupts and analog pin behavior are not fully modelled. Firmware depending on them is not yet supported.
+A file picker accepts firmware locally. AVR8, STM32F4, PIC12F675/683 and PICsim support HEX/BIN; PICsim converts BIN to Intel HEX in the browser. Renvo wraps BIN/HEX into executable images for its supported STM32 flash layouts, and accepts Intel HEX on PIC16F15376. Current Renvo ESP32 targets require ELF. ESP8266, PIC12F1840 and PIC24F remain unavailable until actual browser CPU cores exist. The PIC12F675/683 core runs the classic 14-bit instruction set and GPIO direction/latch basics; oscillator, ADC, EEPROM, timers, interrupts and analog pin behavior are not fully modelled. Firmware depending on them is not yet supported.
 
 ## Execution boundary
 
@@ -84,3 +84,7 @@ Keep a real `DATABASE_URL` in local `.env` when using database features, and nev
 This checks and builds everything without starting a server. `./run.sh --production` runs the built production server after passing the same checks; the development-only Engine Lab is unavailable in production. No npm scripts are defined. CI runs `./run.sh --check`.
 
 The current Node test suite does not execute browser-only CPU smoke fixtures. Verify real firmware on the Engine Lab before promoting changes to `main`.
+
+## dsPIC30F experimental CPU
+
+The browser worker executes a verified subset of real dsPIC30F 24-bit instructions on dsPIC30F2010, dsPIC30F4011 and dsPIC30F4013. Supported instructions include MOV literal/register/file, ADD immediate, selected BRA conditions, CALL, GOTO and RETURN. HEX must follow Microchip INHX32 with each 24-bit instruction padded to four bytes (zero phantom byte). BIN requires the same padded layout. DSP operations, interrupts, timers, ADC, PWM, UART and other chip peripherals are not implemented; firmware using unsupported instructions or registers stops with an explicit error. This is experimental instruction simulation, not full compiled firmware compatibility.

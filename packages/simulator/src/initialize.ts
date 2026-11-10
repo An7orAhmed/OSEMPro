@@ -2,6 +2,7 @@ import { AVR8jsAdapter } from './adapters/avr.ts'
 import { STM32F4Adapter } from './adapters/stm32f4.ts'
 import { RenvoAdapter } from './adapters/renvo.ts'
 import { PicSimAdapter } from './adapters/picsim.ts'
+import { DsPic30Adapter } from './adapters/dspic30.ts'
 import { PIC12Adapter } from './adapters/pic12.ts'
 import { renvoTargets } from './renvo-targets.ts'
 import { SimulationRegistry } from './registry.ts'
@@ -10,6 +11,7 @@ export function createEngineRegistry(): SimulationRegistry {
   const registry = new SimulationRegistry()
   registry.register(new STM32F4Adapter())
   registry.register(new AVR8jsAdapter())
+  registry.register(new DsPic30Adapter())
   registry.register(new PIC12Adapter())
   registry.register(new PicSimAdapter('pic16f'))
   registry.register(new PicSimAdapter('pic18f'))

@@ -43,6 +43,36 @@ export const cpuSmokeFixtures: readonly CpuSmokeFixture[] = [
     expected: 42
   },
   {
+    platform: 'dspic30f',
+    engine: 'dspic30-core',
+    target: 'dspic30f2010',
+    bytes: [0xa0, 0x02, 0x20, 0, 0xff, 0xff, 0x37, 0],
+    filename: 'instruction-test.bin',
+    steps: 2,
+    register: 'W0',
+    expected: 42
+  },
+  {
+    platform: 'dspic30f',
+    engine: 'dspic30-core',
+    target: 'dspic30f4011',
+    bytes: [0xa0, 0x02, 0x20, 0, 0xff, 0xff, 0x37, 0],
+    filename: 'instruction-test.bin',
+    steps: 2,
+    register: 'W0',
+    expected: 42
+  },
+  {
+    platform: 'dspic30f',
+    engine: 'dspic30-core',
+    target: 'dspic30f4013',
+    bytes: [0xa0, 0x02, 0x20, 0, 0xff, 0xff, 0x37, 0],
+    filename: 'instruction-test.bin',
+    steps: 2,
+    register: 'W0',
+    expected: 42
+  },
+  {
     platform: 'stm32',
     engine: 'stm32f4-emu',
     target: 'stm32f401cc',
