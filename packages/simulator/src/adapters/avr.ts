@@ -86,8 +86,37 @@ class AVRSession implements SimulationSession {
     const registers: Record<string, number> = { PC: cpu.pc * 2, SP: cpu.SP, SREG: cpu.data[0x5f] }
     for (let index = 0; index < 32; index += 1) registers[`R${index}`] = cpu.data[index]
     const gpio: Record<string, number> = {}
+    const gpioDirections: Record<string, number> = {}
+    const gpioRegisters: Record<string, number> = {}
     for (const [name, port] of Object.entries(this.ports)) {
-      gpio[name] = cpu.data[port.portConfig.PORT]
+      gpio[name] = cpu.data[port.portConfig.PIN]
+      gpioDirections[name] = cpu.data[port.portConfig.DDR]
+      gpioRegisters[`PIN${name}`] = gpio[name]
+      gpioRegisters[`DDR${name}`] = gpioDirections[name]
+      gpioRegisters[`PORT${name}`] = cpu.data[port.portConfig.PORT]
+    }
+    const timers = {
+      TCCR0A: cpu.data[0x44],
+      TCCR0B: cpu.data[0x45],
+      TCNT0: cpu.data[0x46],
+      TCCR1A: cpu.data[0x80],
+      TCCR1B: cpu.data[0x81],
+      TCNT1: cpu.data[0x84] | cpu.data[0x85] << 8,
+      TCCR2A: cpu.data[0xb0],
+      TCCR2B: cpu.data[0xb1],
+      TCNT2: cpu.data[0xb2]
+    }
+    const interrupts = {
+      EIFR: cpu.data[0x3c],
+      EIMSK: cpu.data[0x3d],
+      PCIFR: cpu.data[0x3b],
+      PCICR: cpu.data[0x68],
+      TIMSK0: cpu.data[0x6e],
+      TIMSK1: cpu.data[0x6f],
+      TIMSK2: cpu.data[0x70],
+      TIFR0: cpu.data[0x35],
+      TIFR1: cpu.data[0x36],
+      TIFR2: cpu.data[0x37]
     }
     return {
       cycles: cpu.cycles,
@@ -95,6 +124,17 @@ class AVRSession implements SimulationSession {
       registers,
       instructions: this.instructionCount,
       gpio,
+      gpioDirections,
+      peripherals: {
+        GPIO: gpioRegisters,
+        Timers: timers,
+        Interrupts: interrupts,
+        UART: {
+          UCSR0A: cpu.data[0xc0],
+          UCSR0B: cpu.data[0xc1],
+          UBRR0: cpu.data[0xc4] | cpu.data[0xc5] << 8
+        }
+      },
       serial: this.output,
       ...(this.failure ? { error: this.failure } : {})
     }

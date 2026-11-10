@@ -158,8 +158,23 @@ class STM32F4Session implements SimulationSession {
       if (typeof value === 'number' && Number.isFinite(value)) registers[name] = value >>> 0
     }
     const gpio: Record<string, number> = {}
+    const gpioDirections: Record<string, number> = {}
+    const gpioRegisters: Record<string, number> = {}
     for (let port = 0; port < (this.profile.chip === 'stm32f407' ? 11 : 6); port += 1) {
-      gpio['GPIO' + String.fromCharCode(65 + port)] = this.machine.read32(0x40020014 + port * 0x400) & 0xffff
+      const name = 'GPIO' + String.fromCharCode(65 + port)
+      const address = 0x40020000 + port * 0x400
+      const moder = this.machine.read32(address)
+      const input = this.machine.read32(address + 0x10) & 0xffff
+      const output = this.machine.read32(address + 0x14) & 0xffff
+      let outputMask = 0
+      for (let bit = 0; bit < 16; bit += 1) {
+        if ((moder >>> (bit * 2) & 3) === 1) outputMask |= 1 << bit
+      }
+      gpio[name] = input
+      gpioDirections[name] = outputMask
+      gpioRegisters[`${name}_MODER`] = moder
+      gpioRegisters[`${name}_IDR`] = input
+      gpioRegisters[`${name}_ODR`] = output
     }
     const fault = this.machine.faultInfo()
     return {
@@ -168,6 +183,30 @@ class STM32F4Session implements SimulationSession {
       instructions: this.instructions,
       registers,
       gpio,
+      gpioDirections,
+      peripherals: {
+        GPIO: gpioRegisters,
+        ADC: {
+          ADC1_SR: this.machine.read32(0x40012000),
+          ADC1_CR1: this.machine.read32(0x40012004),
+          ADC1_CR2: this.machine.read32(0x40012008),
+          ADC1_DR: this.machine.read32(0x4001204c)
+        },
+        Timers: {
+          TIM2_CR1: this.machine.read32(0x40000000),
+          TIM2_CNT: this.machine.read32(0x40000024),
+          TIM2_PSC: this.machine.read32(0x40000028),
+          TIM2_ARR: this.machine.read32(0x4000002c)
+        },
+        Interrupts: {
+          EXTI_IMR: this.machine.read32(0x40013c00),
+          EXTI_PR: this.machine.read32(0x40013c14)
+        },
+        UART: {
+          USART1_SR: this.machine.read32(0x40011000),
+          USART1_CR1: this.machine.read32(0x4001100c)
+        }
+      },
       serial: this.output,
       ...(fault ? { error: 'CPU fault at PC ' + String(fault.pc ?? 'unknown') } : {}),
       ...(this.error ? { error: this.error } : {}),
