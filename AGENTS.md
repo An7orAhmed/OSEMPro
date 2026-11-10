@@ -17,3 +17,8 @@
 - Use `./run.sh` as the single installation, WASM build, validation and development startup command.
 - Use `./run.sh --check` for automated verification without starting the server.
 - Do not restore npm run scripts; keep npm package lifecycle steps inside the launcher.
+
+- Integrate existing emulator cores only. Translating or porting an existing core is allowed, but do not write OSEMPro CPU opcode interpreters.
+- Keep each target's physical pinout and register map under `packages/simulator/src/chips/<target>/`.
+- Never invent GPIO levels, ADC samples, peripheral values or package pin numbers. Unavailable runtime data must remain unavailable.
+- Keep chip diagrams based on manufacturer pinouts, with top-view numbering and representative package clearly identified.

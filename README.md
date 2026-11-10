@@ -44,6 +44,16 @@ No separate npm build commands are needed. `./run.sh` installs the required tool
 
 A file picker accepts firmware locally. AVR8, STM32F4 and PICsim support HEX/BIN; PICsim converts BIN to Intel HEX in the browser. Renvo wraps BIN/HEX into executable images for its supported STM32 flash layouts, and accepts Intel HEX on PIC16F15376. Current Renvo ESP32 targets require ELF. PIC12F, PIC24F, dsPIC30F and ESP8266 remain unavailable until a verified existing browser emulator is integrated. OSEMPro does not implement replacement CPU instruction interpreters.
 
+## Chip pinouts and live registers
+
+Every selectable MCU has a dedicated metadata module under `packages/simulator/src/chips/<target>/index.ts`. Each module defines its target ID, register groups, and verified physical package pinout when one is available. Data is independent from CPU emulators and the Next.js server.
+
+The Engine Lab renders a top-view IC with numbered pins for verified PDIP/LQFP packages. High and low colors appear only when an installed emulator returns a pin level. Power/reset pins are not assigned fabricated logic values. If a package pinout has not been verified, the UI shows the chip label and a clear "Package pinout not verified" message instead.
+
+The register inspector shows CPU registers and the chip-specific GPIO, ADC, timer, interrupt and serial registers returned by its existing emulator. It never substitutes guessed values for missing registers. AVR8 reads actual avr8js memory-mapped GPIO, timer and interrupt bytes; its ADC is not currently modelled. STM32F4 reads selected supported memory-mapped peripheral registers from the existing WASM emulator, using register addresses in the chip folders. PICsim reads exposed SFR bytes for the verified PIC16F84A and PIC18F452 register maps; other PIC devices show only data available from their engine. The data represents emulator state, not direct measurements from physical hardware.
+
+The same MCU series may ship in multiple physical packages. Metadata is for the named representative package, and should be extended with separately verified package variants rather than inventing pin numbers.
+
 ## Execution boundary
 
 ```text

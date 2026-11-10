@@ -423,6 +423,10 @@
   background: #8994ac;
 }
 
+.chip-legend-power {
+  background: #e0b77c;
+}
+
 .chip-datasheet {
   display: inline-block;
   margin-top: 13px;

@@ -50,6 +50,10 @@ function PinDiagram({ pins, packageName, label, snapshot }: {
         const within = index % edgeCount
         const level = pinLevel(pin, snapshot)
         const state = level === null ? 'not available' : level === 1 ? 'high' : 'low'
+        const directions = pin.port ? snapshot.gpioDirections?.[pin.port] : undefined
+        const direction = directions !== undefined && pin.bit !== undefined
+          ? (directions >>> pin.bit & 1) ? 'output' : 'input'
+          : 'direction unavailable'
         const style = pinStyle(pin, snapshot)
         let x1 = 0
         let y1 = 0
@@ -93,7 +97,7 @@ function PinDiagram({ pins, packageName, label, snapshot }: {
 
         return (
           <g key={pin.number} className={style}>
-            <title>{`Pin ${pin.number}: ${pin.label}, ${state}`}</title>
+            <title>{`Pin ${pin.number}: ${pin.label}, ${state}, ${direction}`}</title>
             <line x1={x1} y1={y1} x2={x2} y2={y2} strokeWidth="9" strokeLinecap="round" />
             <circle cx={x2} cy={y2} r="6" />
             <text className="chip-pin-number" x={(x1 + x2) / 2} y={(y1 + y2) / 2 - 7} fontSize="11" textAnchor="middle">{pin.number}</text>
@@ -146,6 +150,7 @@ export default function ChipInspector({ target, snapshot }: { target: string, sn
           <span><i className="chip-legend-high" />High</span>
           <span><i className="chip-legend-low" />Low</span>
           <span><i className="chip-legend-unknown" />No live state</span>
+          <span><i className="chip-legend-power" />Supply / ground</span>
         </div>
         {chip.pinoutSource && <a className="chip-datasheet" href={chip.pinoutSource} target="_blank" rel="noopener noreferrer">Manufacturer pinout</a>}
       </section>

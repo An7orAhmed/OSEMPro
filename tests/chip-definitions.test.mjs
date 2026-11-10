@@ -34,7 +34,7 @@ test('verified pinouts use unique physical pins and documented package counts', 
   }
 })
 
-test('unverified packages never claim a physical pin layout', () => {
+test('verified packages have real pins while unverified packages stay unknown', () => {
   assert.equal(getChipDefinition('stm32f401re').pins.length, 64)
   assert.equal(getChipDefinition('stm32f401cc').pins.length, 48)
   assert.equal(getChipDefinition('stm32f407vg').pins.length, 100)
