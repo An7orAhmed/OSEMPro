@@ -32,11 +32,11 @@ export const engineCandidates: readonly EngineCandidate[] = [
   {
     id: 'pic12f',
     name: 'PIC12F',
-    provider: 'PIC12 14-bit JavaScript core',
-    architecture: '12F675 / 12F683',
-    browserRuntime: 'javascript',
-    license: 'Project source',
-    source: 'https://github.com/An7orAhmed/OSEMPro'
+    provider: 'gpsim port pending',
+    architecture: '12F675 / 12F683 / 12F1840',
+    browserRuntime: 'port-required',
+    license: 'GPL-2.0-or-later',
+    source: 'https://gpsim.sourceforge.net/'
   },
   {
     id: 'pic16f',
@@ -68,11 +68,11 @@ export const engineCandidates: readonly EngineCandidate[] = [
   {
     id: 'dspic30f',
     name: 'dsPIC30F',
-    provider: 'OSEMPro dsPIC30 CPU (experimental)',
+    provider: 'Existing emulator port pending',
     architecture: '30F2010 / 30F4011 / 30F4013',
-    browserRuntime: 'javascript',
-    license: 'Project source',
-    source: 'https://github.com/An7orAhmed/OSEMPro'
+    browserRuntime: 'port-required',
+    license: 'Not selected',
+    source: 'https://www.microchip.com/'
   },
   {
     id: 'esp8266',

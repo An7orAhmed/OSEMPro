@@ -31,6 +31,8 @@ export interface SimulatorSnapshot {
   registers: Readonly<Record<string, number>>
   instructions?: number
   gpio?: Readonly<Record<string, number>>
+  gpioDirections?: Readonly<Record<string, number>>
+  peripherals?: Readonly<Record<string, Readonly<Record<string, number>>>>
   serial?: string
   error?: string
   stopReason?: string

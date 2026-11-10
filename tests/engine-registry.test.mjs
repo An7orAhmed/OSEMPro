@@ -36,9 +36,9 @@ test('built-in adapters register exact targets and distinct backends', () => {
   assert.deepEqual(registry.listAdapters('avr8').map(item => item.id), ['avr8js'])
   assert.deepEqual(registry.listAdapters('stm32').map(item => item.id), ['stm32f4-emu', 'renvo'])
   assert.equal(registry.hasAdapter('esp8266'), false)
-  assert.deepEqual(registry.listAdapters('pic12f').map(item => item.id), ['pic12-core'])
+  assert.equal(registry.hasAdapter('pic12f'), false)
   assert.equal(registry.hasAdapter('pic24f'), false)
-  assert.deepEqual(registry.listAdapters('dspic30f').map(item => item.id), ['dspic30-core'])
+  assert.equal(registry.hasAdapter('dspic30f'), false)
 })
 
 test('unsupported target rejects before starting a CPU', async () => {

@@ -25,54 +25,6 @@ export const cpuSmokeFixtures: readonly CpuSmokeFixture[] = [
     expected: 2
   },
   {
-    platform: 'pic12f',
-    engine: 'pic12-core',
-    target: 'pic12f675',
-    bytes: [0x2a, 0x30, 0x02, 0x28],
-    steps: 2,
-    register: 'W',
-    expected: 42
-  },
-  {
-    platform: 'pic12f',
-    engine: 'pic12-core',
-    target: 'pic12f683',
-    bytes: [0x2a, 0x30, 0x02, 0x28],
-    steps: 2,
-    register: 'W',
-    expected: 42
-  },
-  {
-    platform: 'dspic30f',
-    engine: 'dspic30-core',
-    target: 'dspic30f2010',
-    bytes: [0xa0, 0x02, 0x20, 0, 0xff, 0xff, 0x37, 0],
-    filename: 'instruction-test.bin',
-    steps: 2,
-    register: 'W0',
-    expected: 42
-  },
-  {
-    platform: 'dspic30f',
-    engine: 'dspic30-core',
-    target: 'dspic30f4011',
-    bytes: [0xa0, 0x02, 0x20, 0, 0xff, 0xff, 0x37, 0],
-    filename: 'instruction-test.bin',
-    steps: 2,
-    register: 'W0',
-    expected: 42
-  },
-  {
-    platform: 'dspic30f',
-    engine: 'dspic30-core',
-    target: 'dspic30f4013',
-    bytes: [0xa0, 0x02, 0x20, 0, 0xff, 0xff, 0x37, 0],
-    filename: 'instruction-test.bin',
-    steps: 2,
-    register: 'W0',
-    expected: 42
-  },
-  {
     platform: 'stm32',
     engine: 'stm32f4-emu',
     target: 'stm32f401cc',
