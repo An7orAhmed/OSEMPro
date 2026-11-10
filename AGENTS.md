@@ -14,4 +14,6 @@
 - Keep real instruction fixtures for working backends; test each supported chip model in the browser.
 - Preserve GPL licensing and source availability for any distributed PICsim WASM.
 - Keep UI minimal, responsive and accessible, with 2-space indentation and no code comments.
-- Run `npm test`, `npm run typecheck`, `npm run lint` and `npm run build` before release.
+- Use `./run.sh` as the single installation, WASM build, validation and development startup command.
+- Use `./run.sh --check` for automated verification without starting the server.
+- Do not restore npm run scripts; keep npm package lifecycle steps inside the launcher.

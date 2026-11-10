@@ -6,15 +6,18 @@ Next.js application with browser-only embedded firmware simulation.
 
 ## Start
 
-Use Node.js 24 LTS.
+On macOS or Linux, start everything with one command:
 
 ```sh
 git switch dev
-npm install
-npm run dev
+./run.sh
 ```
 
-Visit `http://localhost:3000`. For local emulator testing, open `http://localhost:3000/internal/engine-lab`. The testing route is available only in development and returns 404 in production.
+The launcher checks system tools, installs Node.js 24, npm packages, Rust and Emscripten when needed, prepares STM32F4, builds PICsim and Renvo WebAssembly, generates Prisma Client, runs tests, lint, type checking and the Next.js build. Only after every step passes does it start the development server and print the ready URL.
+
+Default URLs are `http://localhost:3000` and `http://localhost:3000/internal/engine-lab`. Use `PORT=3001 ./run.sh` for another port. The Engine Lab is development-only and returns 404 in production.
+
+Some system installations can require administrator permission. Apple Command Line Tools may need one-time approval in macOS.
 
 ## Supported families
 
@@ -22,29 +25,22 @@ OSEMPro intentionally exposes only these MCU families and series.
 
 | Family | Target series | Browser emulator |
 | --- | --- | --- |
-| STM32 | F103 | Renvo WASM, optional build |
-| STM32 | F401 | STM32F4 WASM, auto prepared on install |
-| STM32 | F407 | STM32F4 WASM, auto prepared on install |
-| STM32 | F411 | STM32F4 WASM, auto prepared on install, Renvo alternative |
+| STM32 | F103 | Renvo WASM, built by run.sh |
+| STM32 | F401 | STM32F4 WASM, prepared by run.sh |
+| STM32 | F407 | STM32F4 WASM, prepared by run.sh |
+| STM32 | F411 | STM32F4 WASM, prepared by run.sh, Renvo alternative |
 | AVR8 | ATmega328P | avr8js, JavaScript |
 | PIC12F | 12F675, 12F683, 12F1840 | Port pending |
-| PIC16F | Selected 16F models | PICsim WASM, optional build; Renvo alternative for 16F15376 |
-| PIC18F | Selected 18F models | PICsim WASM, optional build |
+| PIC16F | Selected 16F models | PICsim WASM, built by run.sh; Renvo alternative for 16F15376 |
+| PIC18F | Selected 18F models | PICsim WASM, built by run.sh |
 | PIC24F | Selected 24FJ models | Port pending |
 | dsPIC30F | Selected 30F models | Port pending |
 | ESP8266 | ESP8266EX | Port pending |
-| ESP32 | S3, C6, P4 | Renvo WASM, optional build, ELF only at present |
+| ESP32 | S3, C6, P4 | Renvo WASM, built by run.sh, ELF only at present |
 
 Registered models are not automatically runnable. The Engine Lab checks each actual browser runtime and its supported targets. No unrelated MCU family is registered.
 
-For PICsim and Renvo:
-
-```sh
-npm run engines:build:picsim
-npm run engines:build:renvo
-```
-
-PICsim requires Emscripten. Renvo requires Rust with the wasm32-wasip2 target. Only build runtimes you need. `npm run build:with-engines` builds both optional runtimes before Next.js.
+No separate npm build commands are needed. `./run.sh` installs the required tools and builds the PICsim and Renvo runtimes automatically. These are real browser runtimes; models without an emulator core remain unavailable.
 
 A file picker accepts firmware locally. AVR8, STM32F4 and PICsim support HEX/BIN; PICsim converts BIN to Intel HEX in the browser. Renvo wraps BIN/HEX into executable images for its supported STM32 flash layouts, and accepts Intel HEX on PIC16F15376. Current Renvo ESP32 targets require ELF. ESP8266 and unimplemented PIC series must remain unavailable until actual browser CPU cores exist.
 
@@ -76,24 +72,14 @@ Browser client
 
 ## Database
 
-Keep `DATABASE_URL` in local `.env`, never commit secrets.
-
-```sh
-npm run db:check
-npm run db:generate
-npm run db:smoke
-```
-
-Review your development database before running `npm run db:push`; it modifies the schema. The demo model is not used to invent published projects.
+Keep a real `DATABASE_URL` in local `.env` when using database features, and never commit secrets. The launcher checks connectivity if a URL is configured when starting the server. Without a URL, it uses a local placeholder only for Prisma generation and validation. It does not create a database or modify its schema.
 
 ## Verification
 
 ```sh
-npm install
-npm test
-npm run typecheck
-npm run lint
-npm run build
+./run.sh --check
 ```
 
-Commit an updated `package-lock.json` after installation. No code should be promoted to `main` until local browser CPU smoke tests and the Next.js build pass.
+This checks and builds everything without starting a server. `./run.sh --production` runs the built production server after passing the same checks; the development-only Engine Lab is unavailable in production. No npm scripts are defined. CI runs `./run.sh --check`.
+
+The current Node test suite does not execute browser-only CPU smoke fixtures. Verify real firmware on the Engine Lab before promoting changes to `main`.
