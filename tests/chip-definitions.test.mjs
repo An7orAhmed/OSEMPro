@@ -35,7 +35,10 @@ test('verified pinouts use unique physical pins and documented package counts', 
 })
 
 test('unverified packages never claim a physical pin layout', () => {
-  assert.equal(getChipDefinition('stm32f401re').pins.length, 0)
+  assert.equal(getChipDefinition('stm32f401re').pins.length, 64)
+  assert.equal(getChipDefinition('stm32f401cc').pins.length, 48)
+  assert.equal(getChipDefinition('stm32f407vg').pins.length, 100)
+  assert.equal(getChipDefinition('stm32f411re').pins[0].label, 'VBAT')
   assert.equal(getChipDefinition('dspic30f4011').packageName, null)
   assert.equal(getChipDefinition('esp32s3').pins.length, 0)
   assert.equal(getChipDefinition('atmega328p').pins[18].label, 'PB5/SCK')
