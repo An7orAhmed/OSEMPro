@@ -210,6 +210,17 @@ export class DsPic30Session implements SimulationSession {
     this.setFlag(overflow, Boolean((~(a ^ operand) & (a ^ result)) & 0x8000))
   }
 
+  private subtract(destination: number, operand: number): void {
+    const a = this.registers[destination]
+    const result = (a - operand) & 0xffff
+    this.registers[destination] = result
+    this.setFlag(carry, a >= operand)
+    this.setFlag(digitCarry, (a & 15) >= (operand & 15))
+    this.setFlag(zero, result === 0)
+    this.setFlag(negative, Boolean(result & 0x8000))
+    this.setFlag(overflow, Boolean(((a ^ operand) & (a ^ result)) & 0x8000))
+  }
+
   private execute(count: number): void {
     try {
       for (let i = 0; i < count; i += 1) {
@@ -236,6 +247,15 @@ export class DsPic30Session implements SimulationSession {
     }
     if ((code & 0xffc000) === 0xb00000) {
       this.add(code & 15, code >>> 4 & 0x3ff)
+      return
+    }
+    if ((code & 0xffc000) === 0xb10000) {
+      this.subtract(code & 15, code >>> 4 & 0x3ff)
+      return
+    }
+    if ((code & 0xffc000) === 0xef0000) {
+      if (code & 0x2000) this.writeWord(code & 0x1fff, 0)
+      else this.registers[0] = 0
       return
     }
     if ((code & 0xf80000) === 0x800000 || (code & 0xf80000) === 0x880000) {

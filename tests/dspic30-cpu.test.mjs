@@ -109,3 +109,18 @@ test('dsPIC30F rejects malformed firmware, unknown opcodes and unsupported targe
     session.dispose()
   }
 })
+
+test('dsPIC30F SUB immediate updates carry and zero while CLR WREG leaves status intact', async () => {
+  const session = await createSession()
+  try {
+    await session.loadFirmware(parseFirmware('program.bin', binary([
+      0x2002a0, 0xb102a0, 0x320001, 0x200011, 0xef0000
+    ])))
+    await session.step(4)
+    assert.equal(session.snapshot().registers.W0, 0)
+    assert.equal(session.snapshot().registers.PC, 10)
+    assert.equal(session.snapshot().registers.SR & 3, 3)
+  } finally {
+    session.dispose()
+  }
+})
