@@ -30,5 +30,5 @@ test('registry never claims an absent engine is installed', async () => {
   const registry = new SimulationRegistry()
   assert.deepEqual(registry.availablePlatforms(), [])
   assert.equal(registry.hasAdapter('stm32'), false)
-  await assert.rejects(registry.createSession('stm32', 'stm32f401'), /No simulation engine/)
+  await assert.rejects(registry.createSession('stm32', 'stm32f401'), /No simulation adapter supports/)
 })

@@ -19,7 +19,7 @@ for (const fixture of cpuSmokeFixtures.filter(item => !item.browserOnly)) {
 
 test('engine lab rejects unknown fixtures instead of simulating success', async () => {
   await assert.rejects(
-    runCpuSmoke(createEngineRegistry(), 'stm32', 'renvo', 'stm32f103c8t6'),
+    runCpuSmoke(createEngineRegistry(), 'stm32', 'renvo', 'stm32f103c8'),
     /No verified CPU smoke fixture/
   )
 })

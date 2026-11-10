@@ -15,28 +15,30 @@ function adapter(id, platform, ready = true) {
 
 test('multiple independent engines can target the same platform', async () => {
   const registry = new SimulationRegistry()
-  registry.register(adapter('primary', 'avr', false))
-  registry.register(adapter('fallback', 'avr'))
-  assert.equal(registry.listAdapters('avr').length, 2)
-  assert.equal((await registry.createSession('avr', 'chip')).id, 'fallback')
-  assert.deepEqual((await registry.inspect('avr')).map(option => option.available), [false, true])
+  registry.register(adapter('primary', 'avr8', false))
+  registry.register(adapter('fallback', 'avr8'))
+  assert.equal(registry.listAdapters('avr8').length, 2)
+  assert.equal((await registry.createSession('avr8', 'chip')).id, 'fallback')
+  assert.deepEqual((await registry.inspect('avr8')).map(option => option.available), [false, true])
 })
 
 test('explicit engine selection never silently uses another engine', async () => {
   const registry = new SimulationRegistry()
-  registry.register(adapter('primary', 'avr', false))
-  registry.register(adapter('fallback', 'avr'))
-  await assert.rejects(registry.createSession('avr', 'chip', 'primary'), /No installed/)
-  assert.equal((await registry.createSession('avr', 'chip', 'fallback')).id, 'fallback')
-  assert.throws(() => registry.register(adapter('fallback', 'avr')), /already registered/)
+  registry.register(adapter('primary', 'avr8', false))
+  registry.register(adapter('fallback', 'avr8'))
+  await assert.rejects(registry.createSession('avr8', 'chip', 'primary'), /No installed/)
+  assert.equal((await registry.createSession('avr8', 'chip', 'fallback')).id, 'fallback')
+  assert.throws(() => registry.register(adapter('fallback', 'avr8')), /already registered/)
 })
 
 test('built-in adapters register exact targets and distinct backends', () => {
   const registry = createEngineRegistry()
-  assert.deepEqual(registry.listAdapters('avr').map(item => item.id), ['avr8js', 'renvo'])
+  assert.deepEqual(registry.listAdapters('avr8').map(item => item.id), ['avr8js'])
   assert.deepEqual(registry.listAdapters('stm32').map(item => item.id), ['stm32f4-emu', 'renvo'])
-  assert.deepEqual(registry.listAdapters('rp2040').map(item => item.id), ['rp2040js', 'renvo'])
-  assert.equal(registry.hasAdapter('stm8'), false)
+  assert.equal(registry.hasAdapter('esp8266'), false)
+  assert.equal(registry.hasAdapter('pic12f'), false)
+  assert.equal(registry.hasAdapter('pic24f'), false)
+  assert.equal(registry.hasAdapter('dspic30f'), false)
 })
 
 test('unsupported target rejects before starting a CPU', async () => {
