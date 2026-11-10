@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { getChipDefinition } from '@osempro/simulator/chips'
 import type { ChipPin } from '@osempro/simulator/chips'
 import type { SimulatorSnapshot } from '@osempro/simulator/types'
@@ -113,63 +114,126 @@ function registerText(value: number): string {
   return `0x${(value >>> 0).toString(16).toUpperCase().padStart(2, '0')}`
 }
 
-function RegisterValues({ entries }: { entries: Readonly<Record<string, number>> | undefined }) {
-  if (!entries || !Object.keys(entries).length) {
-    return <p className="lab-empty">Not exposed by selected emulator</p>
-  }
+type InspectorView = 'pins' | 'registers' | 'uart'
+
+function RegisterValues({ entries }: { entries: readonly [string, number][] }) {
+  if (!entries.length) return <p className="lab-empty">Not exposed by selected emulator</p>
   return (
     <div className="lab-register-grid">
-      {Object.entries(entries).map(([name, value]) => (
-        <div key={name}><span>{name}</span><code>{registerText(value)}</code></div>
+      {entries.map(([name, value]) => (
+        <div key={name} title={`${name}: ${registerText(value)}`}>
+          <span>{name}</span>
+          <code>{registerText(value)}</code>
+        </div>
       ))}
     </div>
   )
 }
 
 export default function ChipInspector({ target, snapshot }: { target: string, snapshot: SimulatorSnapshot }) {
+  const [view, setView] = useState<InspectorView>('pins')
+  const [group, setGroup] = useState('CPU')
+  const [registerPage, setRegisterPage] = useState(0)
+  const [uartPage, setUartPage] = useState(0)
   const chip = getChipDefinition(target)
-  if (!chip) return <section className="lab-panel"><p className="lab-empty">No chip definition for this target</p></section>
+
+  if (!chip) return <section className="lab-panel lab-inspector"><p className="lab-empty">Chip definition unavailable</p></section>
+
+  const groups = ['CPU', ...chip.registerGroups]
+  const entries = Object.entries(group === 'CPU'
+    ? snapshot.registers
+    : group === 'GPIO' ? snapshot.peripherals?.GPIO ?? snapshot.gpio ?? {} : snapshot.peripherals?.[group] ?? {})
+  const pageSize = 12
+  const registerPages = Math.max(1, Math.ceil(entries.length / pageSize))
+  const currentPage = Math.min(registerPage, registerPages - 1)
+  const visibleEntries = entries.slice(currentPage * pageSize, (currentPage + 1) * pageSize)
+  const serial = snapshot.serial ?? ''
+  const uartPageSize = 180
+  const uartPages = Math.max(1, Math.ceil(serial.length / uartPageSize))
+  const currentUartPage = Math.min(uartPage, uartPages - 1)
+  const uartStart = Math.max(0, serial.length - (currentUartPage + 1) * uartPageSize)
+  const uartEnd = serial.length - currentUartPage * uartPageSize
 
   return (
-    <>
-      <section className="lab-panel lab-chip-panel">
+    <section className="lab-panel lab-inspector">
+      <div className="lab-inspector-heading">
         <div className="lab-panel-heading">
-          <h2>Physical chip</h2>
+          <h2>{chip.label}</h2>
           <span>{chip.packageName ?? 'Package unverified'}</span>
         </div>
-        {chip.pins.length && chip.packageName ? (
-          <div className="chip-visual">
-            <PinDiagram pins={chip.pins} packageName={chip.packageName} label={chip.label} snapshot={snapshot} />
-          </div>
-        ) : (
-          <div className="chip-placeholder">
-            <div className="chip-placeholder-body"><span>{chip.label}</span><small>Package pinout not verified</small></div>
-          </div>
-        )}
-        <div className="chip-legend">
-          <span><i className="chip-legend-high" />High</span>
-          <span><i className="chip-legend-low" />Low</span>
-          <span><i className="chip-legend-unknown" />No live state</span>
-          <span><i className="chip-legend-power" />Supply / ground</span>
-        </div>
-        {chip.pinoutSource && <a className="chip-datasheet" href={chip.pinoutSource} target="_blank" rel="noopener noreferrer">Manufacturer pinout</a>}
-      </section>
-
-      <section className="lab-panel lab-inspector-panel">
-        <div className="lab-panel-heading"><h2>Live registers</h2><span>Selected emulator</span></div>
-        <div className="chip-register-groups">
-          <div className="chip-register-group">
-            <h3>CPU</h3>
-            <RegisterValues entries={snapshot.registers} />
-          </div>
-          {chip.registerGroups.map(name => (
-            <div className="chip-register-group" key={name}>
-              <h3>{name}</h3>
-              <RegisterValues entries={name === 'GPIO' ? snapshot.peripherals?.GPIO ?? snapshot.gpio : snapshot.peripherals?.[name]} />
-            </div>
+        <div className="lab-view-tabs" role="tablist" aria-label="Chip details">
+          {([
+            ['pins', 'Pins'],
+            ['registers', 'Registers'],
+            ['uart', 'UART']
+          ] as const).map(([value, label]) => (
+            <button key={value} type="button" role="tab" aria-selected={view === value}
+              className={view === value ? 'active' : ''} onClick={() => setView(value)}>
+              {label}
+            </button>
           ))}
         </div>
-      </section>
-    </>
+      </div>
+
+      {view === 'pins' && (
+        <div className="lab-inspector-body lab-pin-view" role="tabpanel">
+          {chip.pins.length && chip.packageName ? (
+            <div className="chip-visual">
+              <PinDiagram pins={chip.pins} packageName={chip.packageName} label={chip.label} snapshot={snapshot} />
+            </div>
+          ) : (
+            <div className="chip-placeholder">
+              <div className="chip-placeholder-body">
+                <span>{chip.label}</span>
+                <small>Package pinout not verified</small>
+              </div>
+            </div>
+          )}
+          <div className="lab-chip-footer">
+            <div className="chip-legend">
+              <span><i className="chip-legend-high" />High</span>
+              <span><i className="chip-legend-low" />Low</span>
+              <span><i className="chip-legend-unknown" />Unknown</span>
+              <span><i className="chip-legend-power" />Power</span>
+            </div>
+            {chip.pinoutSource && <a className="chip-datasheet" href={chip.pinoutSource} target="_blank" rel="noopener noreferrer">Datasheet ↗</a>}
+          </div>
+        </div>
+      )}
+
+      {view === 'registers' && (
+        <div className="lab-inspector-body lab-register-view" role="tabpanel">
+          <div className="lab-inspector-toolbar">
+            <label className="lab-group-selector">
+              <span>Group</span>
+              <select value={group} onChange={event => { setGroup(event.target.value); setRegisterPage(0) }}>
+                {groups.map(name => <option key={name} value={name}>{name}</option>)}
+              </select>
+            </label>
+            <div className="lab-pager" aria-label="Register pages">
+              <button type="button" onClick={() => setRegisterPage(page => Math.max(0, page - 1))} disabled={currentPage === 0} aria-label="Previous registers">‹</button>
+              <span>{currentPage + 1} / {registerPages}</span>
+              <button type="button" onClick={() => setRegisterPage(page => Math.min(registerPages - 1, page + 1))} disabled={currentPage >= registerPages - 1} aria-label="Next registers">›</button>
+            </div>
+          </div>
+          <RegisterValues entries={visibleEntries} />
+          <span className="lab-data-summary">{entries.length} registers · Live emulator values</span>
+        </div>
+      )}
+
+      {view === 'uart' && (
+        <div className="lab-inspector-body lab-uart-view" role="tabpanel">
+          <div className="lab-inspector-toolbar">
+            <span className="lab-data-summary">UART output · {serial.length} characters</span>
+            <div className="lab-pager" aria-label="UART output pages">
+              <button type="button" onClick={() => setUartPage(page => Math.min(uartPages - 1, page + 1))} disabled={currentUartPage >= uartPages - 1} aria-label="Older UART output">‹</button>
+              <span>{uartPages - currentUartPage} / {uartPages}</span>
+              <button type="button" onClick={() => setUartPage(page => Math.max(0, page - 1))} disabled={currentUartPage === 0} aria-label="Newer UART output">›</button>
+            </div>
+          </div>
+          <pre className="lab-terminal">{serial ? serial.slice(uartStart, uartEnd) : 'No UART data'}</pre>
+        </div>
+      )}
+    </section>
   )
 }
