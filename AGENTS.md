@@ -1,25 +1,17 @@
-# OSEMPro development rules
+# OSEMPro rules
 
-- Work only on `dev`. Never commit or push to `main`.
-- The web app uses Next.js App Router; keep server and client responsibilities separate.
-- `packages/simulator` is an independent browser simulation package without React, Next.js, Prisma or server dependencies.
-- Never execute uploaded firmware on Next.js servers. Load simulator runtime only in the user's browser.
-- Use `@osempro/simulator/browser` for lazy runtime loading and import types or catalog separately.
-- Keep database access in `src/server` and other server-only modules. Never expose Prisma or credentials to client code.
-- Add Prisma when the datasource and project schema are defined.
-- Add CPU execution smoke tests for every working engine and report unavailable engines accurately.
-- Do not invent project records, simulator outputs, device capabilities, or usage figures.
-- Respect emulator licenses and distribute only redistributable binary or WASM assets.
-- Keep UI modern, minimal, responsive, and accessible.
-- Use readable TypeScript, 2 space indentation, and meaningful names.
-- Check `npm run lint`, `npm test`, `npm run typecheck`, and `npm run build` before releasing.
-- Require real authentication for private projects or engine test pages; an obscure URL is not security.
-- The engine lab route is only available with Next.js `NODE_ENV=development`; never mistake a hidden URL for authentication.
-- Browser firmware tests run within `packages/simulator/src/lab.worker.ts`; never send firmware to Next.js routes or Prisma.
-- Keep actual CPU fixtures in `packages/simulator/src/smoke.ts` and verify them with `tests/engine-lab.test.mjs`.
-- MCU catalog profiles without a browser CPU implementation must remain marked as port pending.
-- Run STM32F401 firmware only through the STM32F401-aware stm32f4-emu backend. Never substitute F411.
-- User firmware HEX/BIN must stay in the browser worker; do not send firmware bytes to API routes.
-- PIC24F and dsPIC30F require a native 16-bit PIC architecture core, not PIC18 or PIC16.
-- PICsim runs via Emscripten inside browser workers and is distributed under GPL-2.0-or-later; keep license and source availability.
-- Add a real instruction fixture and browser smoke test for each new PIC backend.
+- Use `dev` for all development. Never push directly to `main`.
+- Only expose STM32 F103/F401/F407/F411, AVR8, PIC12F, PIC16F, PIC18F, PIC24F, dsPIC30F, ESP8266 and ESP32.
+- Do not register other MCU platforms or substitute incompatible chips.
+- All CPU execution and firmware parsing occur in the user's browser Web Workers.
+- Keep `packages/simulator` independent of React, Next.js, Prisma and server runtimes.
+- Only import emulator registry and CPU adapters from worker entrypoints or local tests.
+- Server code may import simulator types and static catalog data, never runtime modules.
+- Keep Prisma Client and secrets inside server-only modules.
+- Do not send firmware bytes, register dumps or CPU state to Next.js APIs or Prisma.
+- Never claim a planned model is installed or runnable without runtime verification.
+- Preserve actual HEX/BIN behavior and document limitations per emulator.
+- Keep real instruction fixtures for working backends; test each supported chip model in the browser.
+- Preserve GPL licensing and source availability for any distributed PICsim WASM.
+- Keep UI minimal, responsive and accessible, with 2-space indentation and no code comments.
+- Run `npm test`, `npm run typecheck`, `npm run lint` and `npm run build` before release.
