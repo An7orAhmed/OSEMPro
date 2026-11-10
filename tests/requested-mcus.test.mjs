@@ -64,3 +64,14 @@ test('PIC12F PIC24F dsPIC30F and ESP8266 do not claim an upstream browser emulat
 })
 
 
+
+test('PIC16F72 and PIC16F73 stay unavailable until their upstream browser cores exist', async () => {
+  const registry = createEngineRegistry()
+  const planned = plannedTargets.pic16f.map(profile => profile.id)
+  assert.deepEqual(planned, ['pic16f72', 'pic16f73'])
+  for (const target of planned) {
+    assert.equal(getPlannedTarget('pic16f', target)?.id, target)
+    assert.ok(!picSimTargets.pic16f.includes(target))
+    await assert.rejects(registry.createSession('pic16f', target), /No simulation adapter supports/)
+  }
+})

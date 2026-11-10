@@ -32,6 +32,7 @@ OSEMPro intentionally exposes only these MCU families and series.
 | AVR8 | ATmega328P | avr8js, JavaScript |
 | PIC12F | 12F675, 12F683, 12F1840 | Upstream gpsim browser port pending |
 | PIC16F | Selected 16F models | PICsim WASM, built by run.sh; Renvo alternative for 16F15376 |
+| PIC16F | PIC16F72, PIC16F73 | Verified PDIP-28 chip pinouts and SFR maps; browser CPU backend pending |
 | PIC18F | Selected 18F models | PICsim WASM, built by run.sh |
 | PIC24F | Selected 24FJ models | Port pending |
 | dsPIC30F | 30F2010, 30F4011, 30F4013 | Existing emulator port pending |
@@ -43,6 +44,8 @@ Registered models are not automatically runnable. The Engine Lab checks each act
 No separate npm build commands are needed. `./run.sh` installs the required tools and builds the PICsim and Renvo runtimes automatically. These are real browser runtimes; models without an emulator core remain unavailable.
 
 A file picker accepts firmware locally. AVR8, STM32F4 and PICsim support HEX/BIN; PICsim converts BIN to Intel HEX in the browser. Renvo wraps BIN/HEX into executable images for its supported STM32 flash layouts, and accepts Intel HEX on PIC16F15376. Current Renvo ESP32 targets require ELF. PIC12F, PIC24F, dsPIC30F and ESP8266 remain unavailable until a verified existing browser emulator is integrated. OSEMPro does not implement replacement CPU instruction interpreters.
+
+PIC16F72 and PIC16F73 are selectable in the PIC16F family and have separate chip folders containing manufacturer PDIP-28 pin diagrams and GPIO, ADC, timer, interrupt and peripheral register maps. PIC16F73 includes USART and CCP2 registers that are absent on PIC16F72. The current PICsim WASM source does not support either target; native gpsim lists PIC16F73, but no browser port is connected. Firmware execution remains disabled until an existing upstream engine supports the exact chip.
 
 ## Chip pinouts and live registers
 

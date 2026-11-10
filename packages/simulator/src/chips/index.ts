@@ -32,11 +32,15 @@ import { chip as chip30 } from './esp8266ex/index.ts'
 import { chip as chip31 } from './esp32s3/index.ts'
 import { chip as chip32 } from './esp32c6/index.ts'
 import { chip as chip33 } from './esp32p4/index.ts'
+import { chip as pic16f72 } from './pic16f72/index.ts'
+import { chip as pic16f73 } from './pic16f73/index.ts'
 import type { ChipDefinition } from './types.ts'
 
 export type { ChipDefinition, ChipPin } from './types.ts'
 
 export const chips: readonly ChipDefinition[] = [
+  pic16f72,
+  pic16f73,
   chip0,
   chip1,
   chip2,

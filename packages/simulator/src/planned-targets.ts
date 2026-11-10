@@ -10,6 +10,18 @@ export const plannedTargets: Partial<Record<PlatformId, readonly PlannedTarget[]
   esp8266: [
     { id: 'esp8266ex', source: 'https://github.com/espressif/ESP8266_RTOS_SDK', note: 'ESP8266 Xtensa LX106 browser CPU core is not integrated yet.' }
   ],
+  pic16f: [
+    {
+      id: 'pic16f72',
+      source: 'https://ww1.microchip.com/downloads/en/DeviceDoc/39597C.pdf',
+      note: 'Pinout and registers are defined. No verified PIC16F72 browser emulator is integrated.'
+    },
+    {
+      id: 'pic16f73',
+      source: 'https://gpsim.sourceforge.net/',
+      note: 'gpsim supports PIC16F73 natively, but its browser WASM runtime is not integrated.'
+    }
+  ],
   pic12f: [
     { id: 'pic12f675', source: 'https://gpsim.sourceforge.net/', note: 'Existing gpsim core needs a verified browser port.' },
     { id: 'pic12f683', source: 'https://gpsim.sourceforge.net/', note: 'Existing gpsim core needs a verified browser port.' },
