@@ -17,20 +17,12 @@ export type CpuSmokeFixture = {
 
 export const cpuSmokeFixtures: readonly CpuSmokeFixture[] = [
   {
-    platform: 'avr',
+    platform: 'avr8',
     engine: 'avr8js',
     target: 'atmega328p',
     bytes: [0x01, 0xe0, 0x03, 0x95],
     register: 'R16',
     expected: 2
-  },
-  {
-    platform: 'rp2040',
-    engine: 'rp2040js',
-    target: 'rp2040',
-    bytes: [0x03, 0x20, 0x04, 0x30],
-    register: 'R0',
-    expected: 7
   },
   {
     platform: 'stm32',
@@ -69,6 +61,28 @@ export const cpuSmokeFixtures: readonly CpuSmokeFixture[] = [
     platform: 'stm32',
     engine: 'stm32f4-emu',
     target: 'stm32f401re',
+    bytes: [0, 0, 1, 32, 9, 0, 0, 8, 0x2a, 0x20, 0xfe, 0xe7],
+    filename: 'instruction-test.bin',
+    steps: 1,
+    browserOnly: true,
+    register: 'R0',
+    expected: 42
+  },
+  {
+    platform: 'stm32',
+    engine: 'stm32f4-emu',
+    target: 'stm32f407vg',
+    bytes: [0, 0, 1, 32, 9, 0, 0, 8, 0x2a, 0x20, 0xfe, 0xe7],
+    filename: 'instruction-test.bin',
+    steps: 1,
+    browserOnly: true,
+    register: 'R0',
+    expected: 42
+  },
+  {
+    platform: 'stm32',
+    engine: 'stm32f4-emu',
+    target: 'stm32f411re',
     bytes: [0, 0, 1, 32, 9, 0, 0, 8, 0x2a, 0x20, 0xfe, 0xe7],
     filename: 'instruction-test.bin',
     steps: 1,

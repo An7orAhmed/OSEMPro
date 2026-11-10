@@ -7,6 +7,9 @@ export interface PlannedTarget {
 }
 
 export const plannedTargets: Partial<Record<PlatformId, readonly PlannedTarget[]>> = {
+  esp8266: [
+    { id: 'esp8266ex', source: 'https://github.com/espressif/ESP8266_RTOS_SDK', note: 'ESP8266 Xtensa LX106 browser CPU core is not integrated yet.' }
+  ],
   pic12f: [
     { id: 'pic12f675', source: 'https://gpsim.sourceforge.net/', note: 'gpsim models this chip natively, but its browser WASM port is pending.' },
     { id: 'pic12f683', source: 'https://gpsim.sourceforge.net/', note: 'gpsim models this chip natively, but its browser WASM port is pending.' },

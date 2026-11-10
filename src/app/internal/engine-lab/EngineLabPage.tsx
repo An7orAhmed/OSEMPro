@@ -28,9 +28,9 @@ function numericValue(value: number): string {
 export default function EngineLabPage() {
   const labRef = useRef<BrowserEngineLab | null>(null)
   const [engines, setEngines] = useState<EngineState[]>([])
-  const [platform, setPlatform] = useState<PlatformId>('avr')
-  const [engineId, setEngineId] = useState('avr8js')
-  const [target, setTarget] = useState('atmega328p')
+  const [platform, setPlatform] = useState<PlatformId>('stm32')
+  const [engineId, setEngineId] = useState('stm32f4-emu')
+  const [target, setTarget] = useState('stm32f401ce')
   const [file, setFile] = useState<File | null>(null)
   const [snapshot, setSnapshot] = useState<SimulatorSnapshot>(emptySnapshot)
   const [connected, setConnected] = useState(false)

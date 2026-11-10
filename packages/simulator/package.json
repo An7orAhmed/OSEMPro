@@ -9,10 +9,6 @@
     "./catalog": "./src/catalog.ts",
     "./types": "./src/types.ts",
     "./firmware": "./src/firmware.ts",
-    "./registry": "./src/registry.ts",
-    "./initialize": "./src/initialize.ts",
-    "./adapters/avr": "./src/adapters/avr.ts",
-    "./adapters/rp2040": "./src/adapters/rp2040.ts",
     "./lab": "./src/lab.ts",
     "./renvo-targets": "./src/renvo-targets.ts",
     "./planned-targets": "./src/planned-targets.ts",
@@ -23,7 +19,6 @@
   },
   "dependencies": {
     "avr8js": "0.21.1",
-    "rp2040js": "1.4.1",
     "stm32f4-emu": "1.6.0"
   }
 }

@@ -6,6 +6,7 @@ import { engineCandidates } from '@osempro/simulator/catalog'
 import { renvoTargets } from '@osempro/simulator/renvo-targets'
 import { picSimTargets } from '@osempro/simulator/picsim-targets'
 import { plannedTargets } from '@osempro/simulator/planned-targets'
+import { stm32f4Targets } from '@osempro/simulator/stm32f4-targets'
 import type { PlatformId } from '@osempro/simulator/types'
 import { popularProjects, recentProjects, searchProjects } from './projects/catalog'
 import type { PublishedProject } from './projects/catalog'
@@ -82,7 +83,8 @@ export default function App({ projects }: { projects: PublishedProject[] }) {
       const renvo = (renvoTargets as Partial<Record<PlatformId, readonly string[]>>)[engine.id] ?? []
       const picsim = (picSimTargets as Partial<Record<PlatformId, readonly string[]>>)[engine.id] ?? []
       const pending = plannedTargets[engine.id]?.map(profile => profile.id) ?? []
-      return [engine.name, engine.provider, engine.architecture, ...renvo, ...picsim, ...pending]
+      const f4 = engine.id === 'stm32' ? stm32f4Targets.map(profile => profile.id) : []
+      return [engine.name, engine.provider, engine.architecture, ...renvo, ...picsim, ...pending, ...f4]
         .join(' ')
         .toLowerCase()
         .includes(term)
