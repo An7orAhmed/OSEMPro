@@ -45,7 +45,7 @@ async function loadRuntime(chip: STM32F4Target['chip']): Promise<Runtime> {
       ])
 
       if (!svdResponse.ok || !wasmResponse.ok) {
-        throw new Error('STM32F4 WASM assets are not installed. Run npm install.')
+        throw new Error('STM32F4 WASM assets are not installed. Run ./run.sh.')
       }
       if (typeof module.STM32F4?.create !== 'function') {
         throw new Error('Invalid STM32F4 browser emulator')

@@ -18,7 +18,6 @@
     "./stm32f4-targets": "./src/stm32f4-targets.ts"
   },
   "dependencies": {
-    "avr8js": "0.21.1",
-    "stm32f4-emu": "1.6.0"
+    "avr8js": "0.21.1"
   }
 }

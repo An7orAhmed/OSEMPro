@@ -13,7 +13,7 @@ git switch dev
 ./run.sh
 ```
 
-The launcher checks system tools, installs Node.js 24, npm packages, Rust and Emscripten when needed, prepares STM32F4, builds PICsim and Renvo WebAssembly, generates Prisma Client, runs tests, lint, type checking and the Next.js build. Only after every step passes does it start the development server and print the ready URL.
+The launcher checks system tools, installs Node.js 24, npm packages, Rust and Emscripten when needed, downloads pinned STM32F4 emulator source assets, builds PICsim and Renvo WebAssembly, generates Prisma Client, runs tests, lint, type checking and the Next.js build. Only after every step passes does it start the development server and print the ready URL.
 
 Default URLs are `http://localhost:3000` and `http://localhost:3000/internal/engine-lab`. Use `PORT=3001 ./run.sh` for another port. The Engine Lab is development-only and returns 404 in production.
 
@@ -26,9 +26,9 @@ OSEMPro intentionally exposes only these MCU families and series.
 | Family | Target series | Browser emulator |
 | --- | --- | --- |
 | STM32 | F103 | Renvo WASM, built by run.sh |
-| STM32 | F401 | STM32F4 WASM, prepared by run.sh |
-| STM32 | F407 | STM32F4 WASM, prepared by run.sh |
-| STM32 | F411 | STM32F4 WASM, prepared by run.sh, Renvo alternative |
+| STM32 | F401 | STM32F4 WASM, fetched by run.sh |
+| STM32 | F407 | STM32F4 WASM, fetched by run.sh |
+| STM32 | F411 | STM32F4 WASM, fetched by run.sh, Renvo alternative |
 | AVR8 | ATmega328P | avr8js, JavaScript |
 | PIC12F | 12F675, 12F683, 12F1840 | Port pending |
 | PIC16F | Selected 16F models | PICsim WASM, built by run.sh; Renvo alternative for 16F15376 |

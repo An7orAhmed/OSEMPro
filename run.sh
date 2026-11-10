@@ -163,7 +163,7 @@ npm ci --no-audit --no-fund
 ensure_rust
 ensure_emscripten
 
-log 'Preparing STM32 WebAssembly runtime'
+log 'Fetching and preparing STM32 WebAssembly runtime'
 node scripts/setup-stm32f4.mjs
 
 log 'Building PICsim WebAssembly runtime'
