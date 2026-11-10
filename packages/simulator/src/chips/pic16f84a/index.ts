@@ -96,5 +96,20 @@ export const chip: ChipDefinition = {
     "Timers",
     "Interrupts"
   ],
-  "pinoutSource": "https://ww1.microchip.com/downloads/en/devicedoc/35007b.pdf"
+  "pinoutSource": "https://ww1.microchip.com/downloads/en/devicedoc/35007b.pdf",
+  "registerMap": {
+    "GPIO": {
+      "PORTA": 5,
+      "PORTB": 6,
+      "TRISA": 133,
+      "TRISB": 134
+    },
+    "Timers": {
+      "TMR0": 1,
+      "OPTION_REG": 129
+    },
+    "Interrupts": {
+      "INTCON": 11
+    }
+  }
 }

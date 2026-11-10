@@ -206,5 +206,49 @@ export const chip: ChipDefinition = {
     "ADC",
     "UART"
   ],
-  "pinoutSource": "https://ww1.microchip.com/downloads/en/devicedoc/39564c.pdf"
+  "pinoutSource": "https://ww1.microchip.com/downloads/en/devicedoc/39564c.pdf",
+  "registerMap": {
+    "GPIO": {
+      "PORTA": 3968,
+      "PORTB": 3969,
+      "PORTC": 3970,
+      "PORTD": 3971,
+      "PORTE": 3972,
+      "TRISA": 3986,
+      "TRISB": 3987,
+      "TRISC": 3988,
+      "TRISD": 3989,
+      "TRISE": 3990
+    },
+    "ADC": {
+      "ADCON0": 4034,
+      "ADCON1": 4033,
+      "ADRESH": 4036,
+      "ADRESL": 4035
+    },
+    "Timers": {
+      "T0CON": 4053,
+      "TMR0L": 4054,
+      "TMR0H": 4055,
+      "T1CON": 4045,
+      "TMR1L": 4046,
+      "TMR1H": 4047,
+      "T2CON": 4042,
+      "TMR2": 4044
+    },
+    "Interrupts": {
+      "INTCON": 4082,
+      "INTCON2": 4081,
+      "INTCON3": 4080,
+      "PIE1": 3997,
+      "PIR1": 3998,
+      "PIE2": 4000,
+      "PIR2": 4001
+    },
+    "UART": {
+      "TXSTA": 4012,
+      "RCSTA": 4011,
+      "SPBRG": 4015
+    }
+  }
 }

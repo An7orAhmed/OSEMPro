@@ -1,3 +1,5 @@
+import { getChipDefinition } from '../chips/index.ts'
+
 type PicSimModule = {
   FS: { writeFile(path: string, bytes: Uint8Array): void }
   _malloc(size: number): number
@@ -12,6 +14,8 @@ type PicSimModule = {
   _osem_pc(): number
   _osem_w(): number
   _osem_cycles(): number
+  _osem_ram_size(): number
+  _osem_ram(address: number): number
   _osem_pin_count(): number
   _osem_pin(index: number): number
   _osem_end(): void
@@ -32,10 +36,12 @@ type Snapshot = {
   instructions: number
   registers: Record<string, number>
   gpio: Record<string, number>
+  peripherals?: Record<string, Record<string, number>>
 }
 
 let runtimePromise: Promise<PicSimModule> | null = null
 let loaded = false
+let activeTarget = ''
 let running = false
 let instructionCount = 0
 let generation = 0
@@ -71,6 +77,7 @@ function withString<T>(module: PicSimModule, input: string, fn: (address: number
 function snapshot(module: PicSimModule): Snapshot {
   const registers: Record<string, number> = {}
   const gpio: Record<string, number> = {}
+  const peripherals: Record<string, Record<string, number>> = {}
   if (loaded) {
     registers.PC = module._osem_pc()
     registers.W = module._osem_w()
@@ -78,13 +85,23 @@ function snapshot(module: PicSimModule): Snapshot {
     for (let index = 1; index <= count; index += 1) {
       gpio[`PIN${index}`] = module._osem_pin(index)
     }
+    const ramSize = module._osem_ram_size()
+    const registerMap = getChipDefinition(activeTarget)?.registerMap ?? {}
+    for (const [group, addresses] of Object.entries(registerMap)) {
+      const values: Record<string, number> = {}
+      for (const [name, address] of Object.entries(addresses)) {
+        if (address >= 0 && address < ramSize) values[name] = module._osem_ram(address)
+      }
+      if (Object.keys(values).length) peripherals[group] = values
+    }
   }
   return {
     cycles: loaded ? module._osem_cycles() : 0,
     running,
     instructions: instructionCount,
     registers,
-    gpio
+    gpio,
+    peripherals
   }
 }
 
@@ -135,6 +152,7 @@ self.addEventListener('message', async (event: MessageEvent<PicSimRequest>) => {
       module.FS.writeFile('/firmware.hex', new Uint8Array(request.firmware))
       const code = withString(module, request.target.toUpperCase(), address => module._osem_load(address))
       if (code !== 0) throw new Error(`PICsim firmware loading failed with error ${code}`)
+      activeTarget = request.target.toLowerCase()
       loaded = true
       instructionCount = 0
     } else if (request.action === 'start') {

@@ -44,3 +44,14 @@ test('unverified packages never claim a physical pin layout', () => {
   assert.equal(getChipDefinition('atmega328p').pins[18].label, 'PB5/SCK')
   assert.equal(getChipDefinition('stm32f103c8').pins[0].label, 'VBAT')
 })
+
+test('PICsim register mappings use exact documented SFR addresses', () => {
+  const pic16 = getChipDefinition('pic16f84a')
+  assert.equal(pic16.registerMap.Timers.TMR0, 0x01)
+  assert.equal(pic16.registerMap.Interrupts.INTCON, 0x0b)
+  assert.equal(pic16.registerMap.ADC, undefined)
+  const pic18 = getChipDefinition('pic18f452')
+  assert.equal(pic18.registerMap.ADC.ADCON0, 0xfc2)
+  assert.equal(pic18.registerMap.Timers.TMR0L, 0xfd6)
+  assert.equal(pic18.registerMap.Interrupts.INTCON, 0xff2)
+})
