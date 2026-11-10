@@ -162,3 +162,5 @@ self.addEventListener('message', async (event: MessageEvent<PicSimRequest>) => {
     self.postMessage({ id: request.id, error: error instanceof Error ? error.message : String(error) })
   }
 })
+
+export {}
