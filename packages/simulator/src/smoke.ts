@@ -25,6 +25,24 @@ export const cpuSmokeFixtures: readonly CpuSmokeFixture[] = [
     expected: 2
   },
   {
+    platform: 'pic12f',
+    engine: 'pic12-core',
+    target: 'pic12f675',
+    bytes: [0x2a, 0x30, 0x02, 0x28],
+    steps: 2,
+    register: 'W',
+    expected: 42
+  },
+  {
+    platform: 'pic12f',
+    engine: 'pic12-core',
+    target: 'pic12f683',
+    bytes: [0x2a, 0x30, 0x02, 0x28],
+    steps: 2,
+    register: 'W',
+    expected: 42
+  },
+  {
     platform: 'stm32',
     engine: 'stm32f4-emu',
     target: 'stm32f401cc',

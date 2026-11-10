@@ -20,9 +20,10 @@ test('only the requested MCU families appear in the public catalog', () => {
 test('only requested families have simulation adapters', () => {
   const registry = createEngineRegistry()
   assert.deepEqual(registry.availablePlatforms().sort(), [
-    'stm32', 'avr8', 'pic16f', 'pic18f', 'esp32'
+    'stm32', 'avr8', 'pic12f', 'pic16f', 'pic18f', 'esp32'
   ].sort())
   assert.deepEqual(registry.listAdapters('avr8').map(adapter => adapter.id), ['avr8js'])
+  assert.deepEqual(registry.listAdapters('pic12f').map(adapter => adapter.id), ['pic12-core'])
   assert.deepEqual(registry.listAdapters('stm32').map(adapter => adapter.id), ['stm32f4-emu', 'renvo'])
   assert.deepEqual(registry.listAdapters('pic16f').map(adapter => adapter.id), ['picsim', 'renvo'])
   assert.deepEqual(registry.listAdapters('pic18f').map(adapter => adapter.id), ['picsim'])
@@ -52,13 +53,22 @@ test('PICsim supports only its named PIC16F and PIC18F models', () => {
   assert.deepEqual(renvoTargets.pic16f, ['pic16f15376'])
 })
 
-test('PIC12F PIC24F dsPIC30F and ESP8266 do not claim an emulator', async () => {
+test('PIC24F dsPIC30F and ESP8266 do not claim an emulator', async () => {
   const registry = createEngineRegistry()
-  for (const platform of ['pic12f', 'pic24f', 'dspic30f', 'esp8266']) {
+  for (const platform of ['pic24f', 'dspic30f', 'esp8266']) {
     assert.equal(registry.hasAdapter(platform), false)
     assert.ok(plannedTargets[platform]?.length)
     for (const target of plannedTargets[platform]) {
       await assert.rejects(registry.createSession(platform, target.id), /No simulation adapter supports/)
     }
   }
+})
+
+test('PIC12F675 and PIC12F683 have real execution; enhanced PIC12F1840 remains unavailable', async () => {
+  const registry = createEngineRegistry()
+  const [adapter] = await registry.inspect('pic12f')
+  assert.equal(adapter.available, true)
+  assert.deepEqual(adapter.availableTargets, ['pic12f675', 'pic12f683'])
+  assert.deepEqual(plannedTargets.pic12f.map(target => target.id), ['pic12f1840'])
+  await assert.rejects(registry.createSession('pic12f', 'pic12f1840'), /No simulation adapter supports/)
 })

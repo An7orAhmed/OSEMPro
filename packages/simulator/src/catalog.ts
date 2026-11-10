@@ -32,11 +32,11 @@ export const engineCandidates: readonly EngineCandidate[] = [
   {
     id: 'pic12f',
     name: 'PIC12F',
-    provider: 'gpsim',
-    architecture: '8-bit PIC',
-    browserRuntime: 'port-required',
-    license: 'GPL-2.0-or-later',
-    source: 'https://gpsim.sourceforge.net/'
+    provider: 'PIC12 14-bit JavaScript core',
+    architecture: '12F675 / 12F683',
+    browserRuntime: 'javascript',
+    license: 'Project source',
+    source: 'https://github.com/An7orAhmed/OSEMPro'
   },
   {
     id: 'pic16f',

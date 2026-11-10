@@ -30,7 +30,8 @@ OSEMPro intentionally exposes only these MCU families and series.
 | STM32 | F407 | STM32F4 WASM, fetched by run.sh |
 | STM32 | F411 | STM32F4 WASM, fetched by run.sh, Renvo alternative |
 | AVR8 | ATmega328P | avr8js, JavaScript |
-| PIC12F | 12F675, 12F683, 12F1840 | Port pending |
+| PIC12F | 12F675, 12F683 | JavaScript 14-bit CPU core with HEX/BIN, basic GPIO; peripheral fidelity limited |
+| PIC12F | 12F1840 | Enhanced core pending |
 | PIC16F | Selected 16F models | PICsim WASM, built by run.sh; Renvo alternative for 16F15376 |
 | PIC18F | Selected 18F models | PICsim WASM, built by run.sh |
 | PIC24F | Selected 24FJ models | Port pending |
@@ -42,7 +43,7 @@ Registered models are not automatically runnable. The Engine Lab checks each act
 
 No separate npm build commands are needed. `./run.sh` installs the required tools and builds the PICsim and Renvo runtimes automatically. These are real browser runtimes; models without an emulator core remain unavailable.
 
-A file picker accepts firmware locally. AVR8, STM32F4 and PICsim support HEX/BIN; PICsim converts BIN to Intel HEX in the browser. Renvo wraps BIN/HEX into executable images for its supported STM32 flash layouts, and accepts Intel HEX on PIC16F15376. Current Renvo ESP32 targets require ELF. ESP8266 and unimplemented PIC series must remain unavailable until actual browser CPU cores exist.
+A file picker accepts firmware locally. AVR8, STM32F4, PIC12F675/683 and PICsim support HEX/BIN; PICsim converts BIN to Intel HEX in the browser. Renvo wraps BIN/HEX into executable images for its supported STM32 flash layouts, and accepts Intel HEX on PIC16F15376. Current Renvo ESP32 targets require ELF. ESP8266, PIC12F1840, PIC24F and dsPIC30F remain unavailable until actual browser CPU cores exist. The PIC12F675/683 core runs the classic 14-bit instruction set and GPIO direction/latch basics; oscillator, ADC, EEPROM, timers, interrupts and analog pin behavior are not fully modelled. Firmware depending on them is not yet supported.
 
 ## Execution boundary
 
