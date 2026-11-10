@@ -124,3 +124,23 @@ test('dsPIC30F SUB immediate updates carry and zero while CLR WREG leaves status
     session.dispose()
   }
 })
+
+test('Microchip INHX32 maps doubled HEX byte addresses to dsPIC program counters', async () => {
+  const session = await createSession()
+  try {
+    const jump = binary([0x040100, 0])
+    const program = binary([0x2002a0])
+    const hex = [
+      hexRecord(0, 4, [0, 0]),
+      hexRecord(0, 0, jump),
+      hexRecord(0x200, 0, program),
+      ':00000001FF'
+    ].join('\n')
+    await session.loadFirmware(parseFirmware('program.hex', new TextEncoder().encode(hex)))
+    await session.step(2)
+    assert.equal(session.snapshot().registers.W0, 42)
+    assert.equal(session.snapshot().registers.PC, 0x102)
+  } finally {
+    session.dispose()
+  }
+})
