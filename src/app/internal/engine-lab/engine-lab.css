@@ -13,7 +13,7 @@
   border-bottom: 1px solid #ffffff10;
 }
 
-.lab-home, .lab-title, .lab-worker-status {
+.lab-home, .lab-title {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -45,59 +45,10 @@
   letter-spacing: .04em;
 }
 
-.lab-worker-status {
-  color: #9ba0b4;
-  font-size: 11px;
-}
-
-.lab-status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #73778c;
-}
-
-.lab-worker-status.online .lab-status-dot {
-  background: #70d5b8;
-  box-shadow: 0 0 9px #70d5b866;
-}
-
 .lab-content {
   width: min(1220px, calc(100% - 40px));
   margin: auto;
-  padding: 54px 0 85px;
-}
-
-.lab-intro {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-.lab-eyebrow {
-  color: #8f85cb;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: .2em;
-}
-
-.lab-intro h1 {
-  margin: 10px 0 8px;
-  font-size: clamp(31px, 4vw, 43px);
-  font-weight: 690;
-  letter-spacing: -.045em;
-}
-
-.lab-intro p, .lab-privacy {
-  margin: 0;
-  color: #9095ab;
-  font-size: 13px;
-}
-
-.lab-privacy {
-  white-space: nowrap;
+  padding: 30px 0 85px;
 }
 
 .lab-layout {
@@ -382,10 +333,6 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .lab-intro {
-    align-items: start;
-    flex-direction: column;
-  }
 }
 
 @media (max-width: 560px) {
@@ -417,7 +364,4 @@
     padding: 16px;
   }
 
-  .lab-privacy {
-    white-space: normal;
-  }
 }

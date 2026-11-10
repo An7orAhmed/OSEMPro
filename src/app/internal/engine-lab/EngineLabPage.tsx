@@ -33,7 +33,6 @@ export default function EngineLabPage() {
   const [target, setTarget] = useState('stm32f401ce')
   const [file, setFile] = useState<File | null>(null)
   const [snapshot, setSnapshot] = useState<SimulatorSnapshot>(emptySnapshot)
-  const [connected, setConnected] = useState(false)
   const [checking, setChecking] = useState(true)
   const [busy, setBusy] = useState(false)
   const [loaded, setLoaded] = useState(false)
@@ -79,7 +78,6 @@ export default function EngineLabPage() {
         const results = await client.inspect()
         if (disposed) return
         setEngines(results)
-        setConnected(true)
       } catch (reason) {
         if (!disposed) setError(reason instanceof Error ? reason.message : String(reason))
       } finally {
@@ -172,7 +170,6 @@ export default function EngineLabPage() {
 
   const registers = Object.entries(snapshot.registers)
   const gpio = Object.entries(snapshot.gpio ?? {})
-  const status = checking ? 'Checking runtimes' : !connected ? 'Worker unavailable' : 'Browser worker ready'
 
   return (
     <div className="lab-page">
@@ -182,22 +179,9 @@ export default function EngineLabPage() {
           <span>OSEMPro</span>
         </Link>
         <div className="lab-title">ENGINE LAB <span>LOCAL DEVELOPMENT</span></div>
-        <div className={connected ? 'lab-worker-status online' : 'lab-worker-status'}>
-          <span className="lab-status-dot" />
-          {status}
-        </div>
       </header>
 
       <main className="lab-content">
-        <div className="lab-intro">
-          <div>
-            <div className="lab-eyebrow">BROWSER SIMULATION</div>
-            <h1>Engine Lab</h1>
-            <p>Inspect installed emulators and run firmware locally.</p>
-          </div>
-          <span className="lab-privacy">Firmware stays in your browser</span>
-        </div>
-
         <div className="lab-layout">
           <div className="lab-left">
             <section className="lab-panel">
@@ -240,9 +224,9 @@ export default function EngineLabPage() {
               </div>
               {!installed && !checking && <p className="lab-note">
                 {selectedProfile ? <>{selectedProfile.note} <a href={selectedProfile.source} target="_blank" rel="noopener noreferrer">Reference</a></>
-                  : activeEngine?.id === 'renvo' ? <>Build Renvo with <code>npm run engines:build:renvo</code>, then reload.</>
-                     : activeEngine?.id === 'picsim' ? <>Build PICsim with <code>npm run engines:build:picsim</code>, then reload.</>
-                    : activeEngine?.id === 'stm32f4-emu' ? <>Install the STM32F401 WASM assets with <code>npm install</code>, then reload.</>
+                  : activeEngine?.id === 'renvo' ? <>Install the Renvo runtime with <code>./run.sh</code>, then reload.</>
+                     : activeEngine?.id === 'picsim' ? <>Install the PICsim runtime with <code>./run.sh</code>, then reload.</>
+                    : activeEngine?.id === 'stm32f4-emu' ? <>Install the STM32F4 runtime with <code>./run.sh</code>, then reload.</>
                       : 'No browser emulator available for this target.'}
               </p>}
               {installed && <p className="lab-note">Firmware: {firmwareTypes}{engineId === 'renvo' ? '. Renvo replay steps restart from the vector table.' : ''}</p>}
