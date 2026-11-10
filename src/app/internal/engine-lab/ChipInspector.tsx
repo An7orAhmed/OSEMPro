@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getChipDefinition } from '@osempro/simulator/chips'
 import type { ChipPin } from '@osempro/simulator/chips'
 import type { SimulatorSnapshot } from '@osempro/simulator/types'
@@ -135,7 +135,17 @@ export default function ChipInspector({ target, snapshot }: { target: string, sn
   const [group, setGroup] = useState('CPU')
   const [registerPage, setRegisterPage] = useState(0)
   const [uartPage, setUartPage] = useState(0)
+  const [pageSize, setPageSize] = useState(12)
   const chip = getChipDefinition(target)
+
+  useEffect(() => {
+    function resize() {
+      setPageSize(window.innerHeight < 580 ? 6 : window.innerWidth < 530 && window.innerHeight < 750 ? 8 : 12)
+    }
+    resize()
+    window.addEventListener('resize', resize)
+    return () => window.removeEventListener('resize', resize)
+  }, [])
 
   if (!chip) return <section className="lab-panel lab-inspector"><p className="lab-empty">Chip definition unavailable</p></section>
 
@@ -143,7 +153,6 @@ export default function ChipInspector({ target, snapshot }: { target: string, sn
   const entries = Object.entries(group === 'CPU'
     ? snapshot.registers
     : group === 'GPIO' ? snapshot.peripherals?.GPIO ?? snapshot.gpio ?? {} : snapshot.peripherals?.[group] ?? {})
-  const pageSize = 12
   const registerPages = Math.max(1, Math.ceil(entries.length / pageSize))
   const currentPage = Math.min(registerPage, registerPages - 1)
   const visibleEntries = entries.slice(currentPage * pageSize, (currentPage + 1) * pageSize)
