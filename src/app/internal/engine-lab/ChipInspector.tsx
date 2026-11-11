@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { getChipDefinition } from '@osempro/simulator/chips'
 import type { ChipPin } from '@osempro/simulator/chips'
 import type { SimulatorSnapshot } from '@osempro/simulator/types'
@@ -26,22 +26,25 @@ function pinStyle(pin: ChipPin, snapshot: SimulatorSnapshot): string {
   return level === 1 ? 'chip-high' : level === 0 ? 'chip-low' : pinRole(pin) === 'signal' ? 'chip-unknown' : 'chip-power'
 }
 
-function PinDiagram({ pins, packageName, label, snapshot }: {
+function PinDiagram({ pins, packageName, label, snapshot, selectedPin, onSelectPin }: {
   pins: readonly ChipPin[]
   packageName: string
   label: string
   snapshot: SimulatorSnapshot
+  selectedPin: number
+  onSelectPin: (pin: number) => void
 }) {
   const isQuad = packageName.startsWith('LQFP')
   const edgeCount = pins.length / (isQuad ? 4 : 2)
-  const width = 1000
-  const height = isQuad ? 900 : Math.max(670, edgeCount * 32 + 140)
+  const width = 760
+  const height = isQuad ? 760 : Math.max(450, edgeCount * 26 + 112)
   const body = isQuad
-    ? { x: 270, y: 225, w: 460, h: 460 }
-    : { x: 330, y: 88, w: 340, h: height - 176 }
+    ? { x: 189, y: 189, w: 382, h: 382 }
+    : { x: 238, y: 56, w: 284, h: height - 112 }
+  const showLabels = pins.length <= 64
 
   return (
-    <svg className="chip-diagram" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${label} ${packageName} top view physical pinout`}>
+    <svg className="chip-diagram" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label={`${label} ${packageName} top view physical pinout`}>
       <rect x={body.x} y={body.y} width={body.w} height={body.h} rx={isQuad ? 21 : 28} fill="#131a2c" stroke="#7484ab" strokeWidth="3" />
       {isQuad ? <circle cx={body.x + 25} cy={body.y + 25} r="8" fill="#8996b8" /> : <path d={`M ${body.x + body.w / 2 - 35} ${body.y} a 35 35 0 0 0 70 0`} stroke="#8996b8" fill="none" strokeWidth="3" />}
       <text x={body.x + body.w / 2} y={body.y + body.h / 2 - 8} fill="#edf0ff" fontSize="29" fontWeight="700" textAnchor="middle">{label}</text>
@@ -70,18 +73,18 @@ function PinDiagram({ pins, packageName, label, snapshot }: {
           const row = side === 'left' ? within : edgeCount - 1 - within
           const y = body.y + (row + 0.5) * body.h / edgeCount
           x1 = side === 'left' ? body.x : body.x + body.w
-          x2 = x1 + (side === 'left' ? -52 : 52)
+          x2 = x1 + (side === 'left' ? -44 : 44)
           y1 = y2 = y
-          textX = x2 + (side === 'left' ? -12 : 12)
+          textX = x2 + (side === 'left' ? -10 : 10)
           textY = y + 5
           anchor = side === 'left' ? 'end' : 'start'
         } else if (group === 0 || group === 2) {
           const row = group === 0 ? within : edgeCount - 1 - within
           const y = body.y + (row + 0.5) * body.h / edgeCount
           x1 = group === 0 ? body.x : body.x + body.w
-          x2 = x1 + (group === 0 ? -46 : 46)
+          x2 = x1 + (group === 0 ? -34 : 34)
           y1 = y2 = y
-          textX = x2 + (group === 0 ? -9 : 9)
+          textX = x2 + (group === 0 ? -7 : 7)
           textY = y + 4
           anchor = group === 0 ? 'end' : 'start'
         } else {
@@ -89,20 +92,28 @@ function PinDiagram({ pins, packageName, label, snapshot }: {
           const x = body.x + (column + 0.5) * body.w / edgeCount
           x1 = x2 = x
           y1 = group === 1 ? body.y + body.h : body.y
-          y2 = y1 + (group === 1 ? 46 : -46)
+          y2 = y1 + (group === 1 ? 34 : -34)
           textX = x
-          textY = y2 + (group === 1 ? 13 : -13)
+          textY = y2 + (group === 1 ? 9 : -9)
           transform = `rotate(-55 ${textX} ${textY})`
           anchor = group === 1 ? 'start' : 'end'
         }
 
         return (
-          <g key={pin.number} className={style}>
+          <g key={pin.number} className={`${style}${pin.number === selectedPin ? ' chip-selected' : ''}`}
+            role="button" tabIndex={0} aria-label={`Pin ${pin.number}, ${pin.label}, ${state}`}
+            onClick={() => onSelectPin(pin.number)}
+            onKeyDown={event => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                onSelectPin(pin.number)
+              }
+            }}>
             <title>{`Pin ${pin.number}: ${pin.label}, ${state}, ${direction}`}</title>
-            <line x1={x1} y1={y1} x2={x2} y2={y2} strokeWidth="9" strokeLinecap="round" />
-            <circle cx={x2} cy={y2} r="6" />
-            <text className="chip-pin-number" x={(x1 + x2) / 2} y={(y1 + y2) / 2 - 7} fontSize="11" textAnchor="middle">{pin.number}</text>
-            <text className="chip-pin-label" x={textX} y={textY} fontSize={isQuad ? 12 : 16} textAnchor={anchor} transform={transform}>{pin.label}</text>
+            <line x1={x1} y1={y1} x2={x2} y2={y2} strokeWidth={isQuad ? 7 : 9} strokeLinecap="round" />
+            <circle cx={x2} cy={y2} r={pin.number === selectedPin ? 8 : 5} />
+            {pins.length <= 64 && <text className="chip-pin-number" x={(x1 + x2) / 2} y={(y1 + y2) / 2 - 7} fontSize="11" textAnchor="middle">{pin.number}</text>}
+            {showLabels && <text className="chip-pin-label" x={textX} y={textY} fontSize={isQuad ? 13 : 17} textAnchor={anchor} transform={transform}>{pin.label}</text>}
           </g>
         )
       })}
@@ -136,15 +147,28 @@ export default function ChipInspector({ target, snapshot }: { target: string, sn
   const [registerPage, setRegisterPage] = useState(0)
   const [uartPage, setUartPage] = useState(0)
   const [pageSize, setPageSize] = useState(12)
+  const [uartRows, setUartRows] = useState(8)
+  const [uartWidth, setUartWidth] = useState(55)
+  const [selectedPinNumber, setSelectedPinNumber] = useState(0)
+  const panelRef = useRef<HTMLElement | null>(null)
   const chip = getChipDefinition(target)
 
   useEffect(() => {
-    function resize() {
-      setPageSize(window.innerHeight < 580 ? 6 : window.innerWidth < 530 && window.innerHeight < 750 ? 8 : 12)
+    const element = panelRef.current
+    if (!element) return
+    const resize = () => {
+      const width = element.clientWidth
+      const height = element.clientHeight
+      const columns = width >= 1000 ? 4 : width >= 630 ? 3 : 2
+      const rows = Math.max(2, Math.floor((height - 150) / 37))
+      setPageSize(Math.max(4, Math.min(48, columns * rows)))
+      setUartRows(Math.max(3, Math.floor((height - 140) / 17)))
+      setUartWidth(Math.max(24, Math.floor((width - 55) / 7)))
     }
+    const observer = new ResizeObserver(resize)
+    observer.observe(element)
     resize()
-    window.addEventListener('resize', resize)
-    return () => window.removeEventListener('resize', resize)
+    return () => observer.disconnect()
   }, [])
 
   if (!chip) return <section className="lab-panel lab-inspector"><p className="lab-empty">Chip definition unavailable</p></section>
@@ -157,14 +181,29 @@ export default function ChipInspector({ target, snapshot }: { target: string, sn
   const currentPage = Math.min(registerPage, registerPages - 1)
   const visibleEntries = entries.slice(currentPage * pageSize, (currentPage + 1) * pageSize)
   const serial = snapshot.serial ?? ''
-  const uartPageSize = 180
-  const uartPages = Math.max(1, Math.ceil(serial.length / uartPageSize))
+  const serialLines = serial.replace(/\r/g, '').split('\n').flatMap(line => {
+    if (!line.length) return ['']
+    const chunks: string[] = []
+    for (let index = 0; index < line.length; index += uartWidth) {
+      chunks.push(line.slice(index, index + uartWidth))
+    }
+    return chunks
+  })
+  const uartPages = Math.max(1, Math.ceil(serialLines.length / uartRows))
   const currentUartPage = Math.min(uartPage, uartPages - 1)
-  const uartStart = Math.max(0, serial.length - (currentUartPage + 1) * uartPageSize)
-  const uartEnd = serial.length - currentUartPage * uartPageSize
+  const uartStart = Math.max(0, serialLines.length - (currentUartPage + 1) * uartRows)
+  const uartEnd = serialLines.length - currentUartPage * uartRows
+  const selectedPin = chip.pins.find(pin => pin.number === selectedPinNumber)
+    ?? chip.pins.find(pin => pin.port)
+    ?? chip.pins[0]
+  const level = selectedPin ? pinLevel(selectedPin, snapshot) : null
+  const directionValue = selectedPin?.port ? snapshot.gpioDirections?.[selectedPin.port] : undefined
+  const direction = directionValue === undefined || selectedPin?.bit === undefined
+    ? 'Unknown direction'
+    : (directionValue >>> selectedPin.bit & 1) ? 'Output' : 'Input'
 
   return (
-    <section className="lab-panel lab-inspector">
+    <section ref={panelRef} className="lab-panel lab-inspector">
       <div className="lab-inspector-heading">
         <div className="lab-panel-heading">
           <h2>{chip.label}</h2>
@@ -188,7 +227,8 @@ export default function ChipInspector({ target, snapshot }: { target: string, sn
         <div className="lab-inspector-body lab-pin-view" role="tabpanel">
           {chip.pins.length && chip.packageName ? (
             <div className="chip-visual">
-              <PinDiagram pins={chip.pins} packageName={chip.packageName} label={chip.label} snapshot={snapshot} />
+              <PinDiagram pins={chip.pins} packageName={chip.packageName} label={chip.label} snapshot={snapshot}
+                selectedPin={selectedPin?.number ?? 0} onSelectPin={setSelectedPinNumber} />
             </div>
           ) : (
             <div className="chip-placeholder">
@@ -199,6 +239,16 @@ export default function ChipInspector({ target, snapshot }: { target: string, sn
             </div>
           )}
           <div className="lab-chip-footer">
+            {selectedPin && (
+              <label className="lab-pin-details">
+                <span className="sr-only">Inspect physical pin</span>
+                <select value={selectedPin.number} onChange={event => setSelectedPinNumber(Number(event.target.value))}>
+                  {chip.pins.map(pin => <option key={pin.number} value={pin.number}>{pin.number} · {pin.label}</option>)}
+                </select>
+                <strong>{level === null ? 'No live level' : level ? 'HIGH' : 'LOW'}</strong>
+                <span title={direction}>{direction}</span>
+              </label>
+            )}
             <div className="chip-legend">
               <span><i className="chip-legend-high" />High</span>
               <span><i className="chip-legend-low" />Low</span>
@@ -240,7 +290,7 @@ export default function ChipInspector({ target, snapshot }: { target: string, sn
               <button type="button" onClick={() => setUartPage(page => Math.max(0, page - 1))} disabled={currentUartPage === 0} aria-label="Newer UART output">›</button>
             </div>
           </div>
-          <pre className="lab-terminal">{serial ? serial.slice(uartStart, uartEnd) : 'No UART data'}</pre>
+          <pre className="lab-terminal">{serial ? serialLines.slice(uartStart, uartEnd).join('\n') : 'No UART data'}</pre>
         </div>
       )}
     </section>
