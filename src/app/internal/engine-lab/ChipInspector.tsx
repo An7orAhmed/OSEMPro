@@ -101,7 +101,7 @@ function PinDiagram({ pins, packageName, label, snapshot, selectedPin, onSelectP
 
         return (
           <g key={pin.number} className={`${style}${pin.number === selectedPin ? ' chip-selected' : ''}`}
-            role="button" tabIndex={0} aria-label={`Pin ${pin.number}, ${pin.label}, ${state}`}
+            role="button" tabIndex={pin.number === selectedPin ? 0 : -1} aria-label={`Pin ${pin.number}, ${pin.label}, ${state}`}
             onClick={() => onSelectPin(pin.number)}
             onKeyDown={event => {
               if (event.key === 'Enter' || event.key === ' ') {
@@ -256,7 +256,7 @@ export default function ChipInspector({ target, snapshot, focused, onToggleFocus
                 <select value={selectedPin.number} onChange={event => setSelectedPinNumber(Number(event.target.value))}>
                   {chip.pins.map(pin => <option key={pin.number} value={pin.number}>{pin.number} · {pin.label}</option>)}
                 </select>
-                <strong>{level === null ? 'No live level' : level ? 'HIGH' : 'LOW'}</strong>
+                <strong aria-live="polite" className={level === null ? 'lab-level-unknown' : level ? 'lab-level-high' : 'lab-level-low'}>{level === null ? 'Unknown' : level ? 'HIGH' : 'LOW'}</strong>
                 <span title={direction}>{direction}</span>
               </label>
             )}

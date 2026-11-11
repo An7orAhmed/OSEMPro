@@ -1099,3 +1099,15 @@ body:has(.lab-page) {
     display: none;
   }
 }
+
+.lab-pin-details .lab-level-high {
+  color: #62dfb6;
+}
+
+.lab-pin-details .lab-level-low {
+  color: #7aaaff;
+}
+
+.lab-pin-details .lab-level-unknown {
+  color: #9ca6c0;
+}

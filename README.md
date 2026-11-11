@@ -49,7 +49,7 @@ PIC16F72 and PIC16F73 are selectable in the PIC16F family and have separate chip
 
 ## Compact Engine Lab layout
 
-Engine Lab uses a fixed viewport layout without horizontal or vertical scrollable panels. On desktop it shows device setup, execution and a selected monitor view. On smaller screens, Setup and Monitor are separate navigation views. The monitor offers Pins, Registers and UART tabs; register and serial pages can be changed using arrows rather than scrolling. The physical chip SVG scales to the available space.
+Engine Lab uses a fixed viewport layout without horizontal or vertical scrollable panels. On desktop it shows device setup, execution and a selected monitor view. On smaller screens, Setup and Monitor are separate navigation views. The monitor offers Pins, Registers and UART tabs; register and serial pages adjust to the actual panel dimensions. The physical chip SVG scales to the available space and individual pins can be selected by touch, pointer or an accessible pin picker. Expand enlarges the chip monitor without moving the rest of the interface.
 
 ## Chip pinouts and live registers
 
