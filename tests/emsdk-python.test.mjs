@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync, chmodSync, symlinkSync, readlinkSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync, chmodSync, readlinkSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
@@ -24,7 +24,7 @@ function fakePython(path, version) {
     `  --version) printf 'Python ${version}\\n'; exit 0 ;;`,
     'esac',
     'exit 1'
-  ].join('\\n')
+  ].join('\n')
   writeFileSync(path, content)
   chmodSync(path, 0o755)
 }
@@ -45,7 +45,7 @@ test('Emscripten selects Conda Python instead of outdated Apple python3', () => 
       configurePython,
       'configure_emsdk_python',
       'python3 --version'
-    ].join('\\n')
+    ].join('\n')
     const result = spawnSync('bash', ['-c', script], {
       env: { ...process.env, TEST_ROOT: root, PATH: `${bin}:${process.env.PATH}` },
       encoding: 'utf8'
