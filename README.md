@@ -13,9 +13,11 @@ git switch dev
 ./run.sh
 ```
 
-The launcher checks system tools, installs Node.js 24, npm packages, Rust and Emscripten when needed, downloads pinned STM32F4 emulator source assets, builds PICsim and Renvo WebAssembly, generates Prisma Client, runs tests, lint, type checking and the Next.js build. Only after every step passes does it start the development server and print the ready URL.
+The launcher checks system tools, selects a Python 3.10+ interpreter for Emscripten (including an active Conda Python), installs Node.js 24, npm packages, Rust and Emscripten when needed, downloads pinned STM32F4 emulator source assets, builds PICsim and Renvo WebAssembly, generates Prisma Client, runs tests, lint, type checking and the Next.js build. Only after every step passes does it start the development server and print the ready URL.
 
 Default URLs are `http://localhost:3000` and `http://localhost:3000/internal/engine-lab`. Use `PORT=3001 ./run.sh` for another port. The Engine Lab is development-only and returns 404 in production.
+
+On macOS, Apple Command Line Tools may provide Python 3.9 while Conda provides a newer `python`. The launcher detects a compatible interpreter and uses a local Python 3 shim for Emscripten without changing system Python. If needed, set `OSEM_PYTHON=/path/to/python3 ./run.sh`.
 
 Some system installations can require administrator permission. Apple Command Line Tools may need one-time approval in macOS.
 

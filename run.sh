@@ -130,7 +130,41 @@ ensure_rust() {
   rustup target add wasm32-wasip2
 }
 
+configure_emsdk_python() {
+  local candidate interpreter=''
+  local candidates=(python3 python python3.14 python3.13 python3.12 python3.11 python3.10)
+
+  if [[ -n "${OSEM_PYTHON:-}" ]]; then
+    candidates=("$OSEM_PYTHON" "${candidates[@]}")
+  fi
+
+  for candidate in "${candidates[@]}"; do
+    if ! command -v "$candidate" >/dev/null 2>&1; then
+      continue
+    fi
+
+    if "$candidate" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)' >/dev/null 2>&1; then
+      interpreter="$("$candidate" -c 'import os, sys; print(os.path.realpath(sys.executable))')"
+      break
+    fi
+  done
+
+  if [[ -z "$interpreter" ]]; then
+    fail 'Emscripten requires Python 3.10+. Install a newer Python or set OSEM_PYTHON to its executable path.'
+  fi
+
+  local shim_dir="$root/.build/emsdk-python/bin"
+  mkdir -p "$shim_dir"
+  ln -sfn "$interpreter" "$shim_dir/python3"
+  ln -sfn "$interpreter" "$shim_dir/python"
+  export PATH="$shim_dir:$PATH"
+
+  log "Emscripten will use $(python3 --version 2>&1)"
+}
+
 ensure_emscripten() {
+  configure_emsdk_python
+
   if command -v emcc >/dev/null 2>&1; then
     return
   fi
