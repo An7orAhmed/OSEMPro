@@ -41,6 +41,7 @@ export default function EngineLabPage() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [mobileView, setMobileView] = useState<'setup' | 'monitor'>('setup')
+  const [focused, setFocused] = useState(false)
 
   const activePlatform = useMemo(() => engines.find(option => option.platform === platform), [engines, platform])
   const activeEngine = activePlatform?.engines.find(option => option.id === engineId)
@@ -101,6 +102,7 @@ export default function EngineLabPage() {
     setPlatform(value)
     setEngineId(first?.id ?? '')
     setTarget(first?.availableTargets[0] ?? first?.targets[0] ?? plannedTargets[value]?.[0]?.id ?? '')
+    setFocused(false)
     clearFirmware()
   }
 
@@ -108,6 +110,7 @@ export default function EngineLabPage() {
     const selected = activePlatform?.engines.find(option => option.id === value)
     setEngineId(value)
     setTarget(selected?.availableTargets[0] ?? selected?.targets[0] ?? plannedTargets[platform]?.[0]?.id ?? '')
+    setFocused(false)
     clearFirmware()
   }
 
@@ -222,10 +225,18 @@ export default function EngineLabPage() {
                     ))}
                   </select>
                 </label>
-                <label className="lab-field">
+                <label className="lab-field lab-firmware-field">
                   <span>Firmware</span>
-                  <input type="file" accept={firmwareTypes.replaceAll(' ', '')} disabled={busy || !installed}
-                    onChange={event => { clearFirmware(); setFile(event.target.files?.[0] ?? null) }} />
+                  <span className={file ? 'lab-file-picker has-file' : 'lab-file-picker'}>
+                    <span className="lab-file-symbol" aria-hidden="true">↑</span>
+                    <span className="lab-file-name" title={file?.name ?? 'Choose a HEX or BIN file'}>{file?.name ?? 'Choose firmware'}</span>
+                    <input key={`${platform}:${engineId}:${target}`} type="file" accept={firmwareTypes.replaceAll(' ', '')}
+                      disabled={busy || !installed} onChange={event => {
+                        const selected = event.target.files?.[0] ?? null
+                        clearFirmware()
+                        setFile(selected)
+                      }} />
+                  </span>
                 </label>
               </div>
               <div className="lab-setup-actions">
@@ -243,7 +254,7 @@ export default function EngineLabPage() {
             </section>
           </div>
 
-          <div className="lab-right">
+          <div className={focused ? 'lab-right lab-focused' : 'lab-right'}>
             <section className="lab-panel lab-execution">
               <div className="lab-execution-bar">
                 <div className="lab-panel-heading">
@@ -275,7 +286,7 @@ export default function EngineLabPage() {
               )}
             </section>
 
-            <ChipInspector key={target} target={target} snapshot={snapshot} />
+            <ChipInspector key={target} target={target} snapshot={snapshot} focused={focused} onToggleFocus={() => setFocused(value => !value)} />
           </div>
         </div>
       </main>
