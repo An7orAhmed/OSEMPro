@@ -141,7 +141,12 @@ function RegisterValues({ entries }: { entries: readonly [string, number][] }) {
   )
 }
 
-export default function ChipInspector({ target, snapshot }: { target: string, snapshot: SimulatorSnapshot }) {
+export default function ChipInspector({ target, snapshot, focused, onToggleFocus }: {
+  target: string
+  snapshot: SimulatorSnapshot
+  focused: boolean
+  onToggleFocus: () => void
+}) {
   const [view, setView] = useState<InspectorView>('pins')
   const [group, setGroup] = useState('CPU')
   const [registerPage, setRegisterPage] = useState(0)
@@ -209,7 +214,8 @@ export default function ChipInspector({ target, snapshot }: { target: string, sn
           <h2>{chip.label}</h2>
           <span>{chip.packageName ?? 'Package unverified'}</span>
         </div>
-        <div className="lab-view-tabs" role="tablist" aria-label="Chip details">
+        <div className="lab-inspector-actions">
+          <div className="lab-view-tabs" role="tablist" aria-label="Chip details">
           {([
             ['pins', 'Pins'],
             ['registers', 'Registers'],
@@ -220,6 +226,11 @@ export default function ChipInspector({ target, snapshot }: { target: string, sn
               {label}
             </button>
           ))}
+          </div>
+          <button type="button" className="lab-expand-control" aria-pressed={focused}
+            onClick={onToggleFocus} title={focused ? 'Show execution controls' : 'Expand chip inspector'}>
+            {focused ? 'Restore' : 'Expand'}
+          </button>
         </div>
       </div>
 
