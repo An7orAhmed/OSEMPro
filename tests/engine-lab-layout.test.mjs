@@ -29,6 +29,38 @@ test('chip, registers and UART use compact tabs and pagination', () => {
   assert.match(inspector, /registerPages/)
   assert.match(inspector, /uartPages/)
   assert.match(inspector, /currentUartPage/)
-  assert.match(inspector, /window\.innerHeight < 580/)
+  assert.match(inspector, /new ResizeObserver\(resize\)/)
+  assert.match(inspector, /setPageSize\(/)
+  assert.match(inspector, /setUartRows\(/)
   assert.doesNotMatch(page, /lab-data-scroll/)
+})
+
+test('chip pins are selectable without a scrollable diagram', () => {
+  assert.match(inspector, /onSelectPin\(pin.number\)/)
+  assert.match(inspector, /aria-label=\{`Pin/)
+  assert.match(inspector, /selectedPinNumber/)
+  assert.match(inspector, /lab-pin-details/)
+  assert.match(stylesheet, /\.chip-selected circle/)
+})
+
+test('focus mode expands the chip and retains a way to restore execution controls', () => {
+  assert.match(page, /lab-focused/)
+  assert.match(page, /onToggleFocus=\{\(\) => setFocused/)
+  assert.match(inspector, /onToggleFocus/)
+  assert.match(inspector, /focused \? 'Restore' : 'Expand'/)
+  assert.match(stylesheet, /\.lab-focused \.lab-execution \{\s*display: none/)
+})
+
+test('firmware picker displays a selected filename without overflowing the layout', () => {
+  assert.match(page, /lab-file-picker/)
+  assert.match(page, /lab-file-name/)
+  assert.match(page, /file\?\.name \?\? 'Choose firmware'/)
+  assert.match(stylesheet, /\.lab-file-name \{[\s\S]*?text-overflow: ellipsis/)
+  assert.match(stylesheet, /\.lab-file-picker input\[type="file"\]/)
+})
+
+test('no unbounded UART stream is placed into a hidden overflowing panel', () => {
+  assert.match(inspector, /serialLines/)
+  assert.match(inspector, /\.slice\(uartStart, uartEnd\)/)
+  assert.match(inspector, /setUartWidth\(/)
 })
